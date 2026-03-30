@@ -2,33 +2,63 @@
 
 ## Commands
 
-### `nicy run <file>`
+### `nicy run <entry.luau>`
 
-Runs a Luau script through `nicyrtdyn`.
+Executes a Luau entry script via `nicyrtdyn`.
 
-### `nicy eval <code>`
+Inputs:
 
-Evaluates inline Luau code.
+- path to entry script
 
-### `nicy compile <file>`
+Output behavior:
 
-Compiles source to Luau bytecode (`.luauc`).
+- process exit code `0` on success
+- non-zero on load/compile/runtime failure
+
+### `nicy eval "<code>"`
+
+Executes inline Luau code.
+
+### `nicy compile <entry.luau>`
+
+Compiles source into `.luauc` bytecode artifact.
 
 ### `nicy runtime-version`
 
-Reports runtime version details.
+Prints runtime and Luau engine version metadata.
 
-## Runtime resolution order
+## Resolution behavior
 
-1. Local directory of `nicy` executable
-2. Process/system PATH
+Runtime library search order:
 
-## Exit behavior
+1. Same directory as `nicy` executable
+2. PATH directories
 
-- Exit code `0`: command succeeded
-- Non-zero: initialization, load, compile, or runtime failure
+## Examples
 
-## See also
+::: code-group
 
-- [Runtime API](/reference/runtime-api)
-- [Host API](/reference/host-api)
+```bash [Run]
+nicy run main.luau
+```
+
+```bash [Eval]
+nicy eval "print(runtime.version)"
+```
+
+```bash [Compile]
+nicy compile main.luau
+```
+
+```bash [Runtime info]
+nicy runtime-version
+```
+
+:::
+
+## Failure modes
+
+- runtime library not found
+- required symbol missing
+- architecture mismatch
+- Luau runtime error

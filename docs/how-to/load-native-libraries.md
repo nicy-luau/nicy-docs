@@ -1,38 +1,27 @@
-# Load Native Libraries
+# Load Native Libraries (How-to)
 
-Use `runtime.loadlib(path)` to load native dynamic libraries.
+Goal: load platform-specific native library from Luau script.
 
-## Path patterns
+## Steps
 
-- Relative path from script location
-- `@self` alias for current script directory
+1. place binary in deterministic project path
+2. call `runtime.loadlib(...)`
+3. call exported function and validate output
 
-Example:
+## Example
 
-```luau
-local lib = runtime.loadlib("@self/native/test_extension.dll")
+::: code-group
+
+```luau [Windows]
+<<< ../examples/luau/native/native_load_windows.luau
 ```
 
-## Platform filenames
-
-- Windows: `.dll`
-- Linux: `.so`
-- macOS: `.dylib`
-
-## Recommended layout
-
-```text
-project/
-  main.luau
-  native/
-    test_extension.dll
+```luau [Linux]
+<<< ../examples/luau/native/native_load_linux.luau
 ```
 
-## Verify successful load
+```luau [macOS]
+<<< ../examples/luau/native/native_load_macos.luau
+```
 
-- `runtime.loadlib` returns non-nil value/object per your module contract
-- no loader error from runtime
-
-## If it fails
-
-Go to [Fix common runtime errors](/how-to/fix-common-errors).
+:::

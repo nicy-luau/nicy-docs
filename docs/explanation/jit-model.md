@@ -1,19 +1,17 @@
-# JIT and Module Boundaries
+# JIT Model Explanation
 
-`--!native` controls JIT at file scope.
+## Core rule
 
-## Rules
+JIT is file-scoped (`--!native`), not global.
 
-- Each file decides its own JIT mode
-- Entry file JIT does not cascade globally
-- Required module can enable JIT independently
+## Why this design
 
-## Why this matters
+- predictable module behavior
+- no hidden global state toggles
+- package-level control over native codegen boundaries
 
-- Predictable behavior for package/module authors
-- Avoids hidden global toggles
-- Improves module portability
+## Practical implications
 
-## Practical recommendation
-
-Use `runtime.hasJIT(path?)` in diagnostics and tests to validate expected behavior.
+1. entry and required module may have different JIT states
+2. tests should validate JIT state explicitly
+3. performance assumptions should be module-specific

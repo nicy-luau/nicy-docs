@@ -1,23 +1,21 @@
-# Architecture
+# Architecture Explanation
 
-Nicy is split into host and runtime to keep deployment and integration flexible.
+## Layer split
 
-## Layers
+- CLI layer (`nicy`): command processing + runtime discovery
+- Runtime layer (`nicyrtdyn`): Luau execution + APIs + resolver + scheduler
+- Native extension layer: optional ABI-level modules
 
-- CLI host (`nicy`): command routing and runtime loading
-- Runtime engine (`nicyrtdyn`): execution, APIs, scheduler, resolver
-- Native extension layer: optional bare-metal plugins via C-ABI
+## Why split host/runtime
 
-## Execution pipeline
+1. independent release and testing of runtime engine
+2. host embeddability in multiple environments
+3. clearer boundaries for ABI compatibility management
 
-1. Resolve entry script path
-2. Load runtime shared library
-3. Resolve required host symbols
-4. Initialize Luau state and global APIs
-5. Execute entry script
+## Data/control flow
 
-## Why this design
-
-- Runtime can evolve independently from CLI host
-- Host can be swapped or embedded in other languages
-- Native extension support remains optional and explicit
+1. user invokes CLI
+2. CLI resolves runtime library
+3. runtime initializes Luau state
+4. runtime executes entry script
+5. script consumes runtime/task/native APIs

@@ -1,51 +1,53 @@
 # Runtime API Reference
 
-## Global object: `runtime`
+## Global: `runtime`
 
 ### `runtime.version: string`
 
-Runtime version string.
-
-### `runtime.hasJIT(path?: string): boolean`
-
-Returns JIT/CodeGen activation state.
-
-Arguments:
-
-- `path` optional module path
-
-Behavior:
-
-- No path: evaluates current file
-- Path provided: evaluates referenced module
+Runtime version string from loaded `nicyrtdyn`.
 
 ### `runtime.entry_file: string`
 
-Absolute path of entry script.
+Absolute entry script path.
 
 ### `runtime.entry_dir: string`
 
 Absolute directory of entry script.
 
-### `runtime.loadlib(path: string)`
+### `runtime.hasJIT(path?: string): boolean`
+
+Returns JIT state for current file or target module path.
+
+Contract:
+
+- no argument: current executing file
+- string argument: resolved target file
+
+### `runtime.loadlib(path: string): any`
 
 Loads a native dynamic library.
 
-Supported path features:
+Path handling:
 
-- relative paths
-- `@self` alias
+- relative paths supported
+- `@self` alias supported
 
-Error modes:
+## Examples
 
-- file not found
-- incompatible binary format
-- required symbol missing
+::: code-group
 
-## Example
-
-```luau
-print(runtime.version)
-print(runtime.hasJIT())
-local lib = runtime.loadlib("@self/native/test_extension.dll")
+```luau [Inspect runtime + JIT]
+<<< ../examples/luau/runtime/basic_jit_check.luau
 ```
+
+```luau [Load native library]
+<<< ../examples/luau/native/native_load_windows.luau
+```
+
+:::
+
+## Failure modes
+
+- unresolved library path
+- wrong binary format for platform
+- missing symbols expected by module contract

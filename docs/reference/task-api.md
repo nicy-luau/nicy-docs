@@ -1,14 +1,14 @@
 # Task API Reference
 
-## Global library: `task`
+## Global: `task`
 
 ### `task.spawn(f, ...): thread`
 
-Schedules execution immediately.
+Schedules immediate asynchronous callback.
 
 ### `task.defer(f, ...): thread`
 
-Schedules execution in a later scheduler cycle.
+Schedules callback for a later scheduler cycle.
 
 ### `task.delay(seconds, f, ...): delay_id`
 
@@ -16,13 +16,25 @@ Schedules callback after delay.
 
 ### `task.wait(seconds?): number`
 
-Yields current coroutine.
+Yields current coroutine for optional duration.
 
 ### `task.cancel(thread_or_id): ()`
 
-Cancels scheduled work.
+Cancels active scheduled unit.
 
-## Notes
+## Scheduler model
 
-- Scheduler is cooperative
-- Long-running loops should yield with `task.wait`
+- cooperative
+- explicit yield-based progress
+
+## Example
+
+```luau
+<<< ../examples/luau/task/worker_loop.luau
+```
+
+## Failure modes
+
+- starvation from loops without `task.wait`
+- runaway spawn recursion
+- untracked delay handles

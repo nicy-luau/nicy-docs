@@ -1,71 +1,35 @@
-# Your First Nicy Project
+# Your First Nicy Project (Tutorial)
 
-This tutorial creates and runs a minimal Luau project with Nicy.
+## Goal
 
-## Prerequisites
+Create and execute a Luau project with one required module.
 
-- Nicy installed: [Install and verify](/how-to/install-and-verify)
+## Files
 
-## Step 1: Create project files
-
-```bash
-mkdir nicy-demo
-cd nicy-demo
-```
-
-Create `main.luau`:
+`main.luau`:
 
 ```luau
 print("hello from nicy")
-print("runtime version:", runtime.version)
+local cfg = require("./config.luau")
+print(cfg.name)
 ```
 
-## Step 2: Run the script
+`config.luau`:
+
+```luau
+return {
+    name = "demo"
+}
+```
+
+## Run
 
 ```bash
 nicy run main.luau
 ```
 
-Expected output includes:
+## Outcome
 
-- `hello from nicy`
-- runtime version string
-
-## Step 3: Add a module
-
-Create `mathutil.luau`:
-
-```luau
-local M = {}
-
-function M.sum(a, b)
-    return a + b
-end
-
-return M
-```
-
-Update `main.luau`:
-
-```luau
-local mathutil = require("./mathutil.luau")
-print("2 + 5 =", mathutil.sum(2, 5))
-```
-
-Run again:
-
-```bash
-nicy run main.luau
-```
-
-## What you learned
-
-- Basic project setup
-- Script execution
-- Module loading through `require`
-- Accessing `runtime` global
-
-## Continue
-
-- [Enable JIT in modules](/how-to/enable-jit)
-- [Runtime API reference](/reference/runtime-api)
+- script execution works
+- `require` path works
+- runtime integrated correctly

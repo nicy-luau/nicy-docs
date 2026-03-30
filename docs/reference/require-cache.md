@@ -1,24 +1,26 @@
-# Require and Cache Reference
+# Require & Cache Reference
 
-## Resolver capabilities
+## Resolver pipeline
 
-- fingerprint-based cache invalidation
-- circular dependency detection
-- alias support from `.luaurc`
+1. request normalization
+2. alias application (`.luaurc`)
+3. path resolution
+4. circular graph detection
+5. cache lookup
+6. fingerprint-based invalidation
 
-## Cache behavior
+## Cache contract
 
-- Same module path maps to cached module exports
-- File change invalidates previous cache state
-
-## JIT boundary interaction
-
-`--!native` is applied at file level, not globally.
+- same canonical module path returns cached export table
+- file change invalidates cache entry
 
 ## Example
 
 ```luau
-local m1 = require("./module.luau")
-local m2 = require("./module.luau")
-print(m1 == m2)
+<<< ../examples/luau/require/cache_hit_check.luau
 ```
+
+## Edge behavior
+
+- cyclic require chains produce explicit errors
+- JIT remains file-scoped and independent per module

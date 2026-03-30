@@ -1,25 +1,22 @@
 # Module Resolution Specification
 
-## Resolution inputs
+## Inputs
 
-- Requested module path
-- Current module location
-- Alias mappings (`.luaurc`)
+- requester module path
+- requested import string
+- alias map (`.luaurc`)
 
-## Resolution process
+## Algorithm
 
-1. Normalize request path
-2. Apply alias mapping if present
-3. Resolve to filesystem location
-4. Validate module existence
-5. Consult module cache
-6. Load/execute module if cache miss
+1. normalize request
+2. apply alias mapping
+3. resolve filesystem target
+4. check cache by canonical key
+5. compare fingerprint for invalidation
+6. execute or return cached export
 
-## Cache invalidation
+## Error conditions
 
-- Cache key includes file fingerprint
-- File changes invalidate prior module snapshot
-
-## Circular dependencies
-
-Resolver tracks in-progress modules and reports circular dependency chains.
+- unresolved module
+- dependency cycle
+- execution error during module init

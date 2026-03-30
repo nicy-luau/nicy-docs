@@ -1,59 +1,61 @@
 # Error Catalog
 
-## `failed to load symbol 'nicy_start'`
+## CLI / Runtime startup
+
+### `failed to load symbol 'nicy_start'`
 
 Cause:
 
-- Runtime library does not export expected symbol
+- wrong runtime artifact, stale PATH, or architecture mismatch.
 
 Actions:
 
-- Validate release artifact pair
-- Inspect exports in runtime binary
+1. reinstall runtime + cli pair
+2. verify symbol exports
+3. verify architecture match
 
-## `failed to load symbol 'nicy_version'`
+### `failed to load symbol 'nicy_version'`
 
 Cause:
 
-- Incompatible runtime artifact
+- incompatible runtime library version.
 
 Actions:
 
-- Replace runtime with matching release
-- Ensure binary architecture is correct
+1. clear stale runtime binary from PATH precedence
+2. reinstall matching release pair
 
-## PowerShell execution policy error
+## PowerShell policy
+
+### `running scripts is disabled on this system`
+
+Actions:
+
+- one-time bypass (`-ExecutionPolicy Bypass`)
+- persistent user policy (`RemoteSigned`)
+
+## Native module loading
+
+### library load failure
 
 Cause:
 
-- Script policy restricts local or downloaded scripts
+- wrong extension
+- missing dependencies
+- architecture mismatch
 
 Actions:
 
-- Use one-time bypass
-- Set `CurrentUser` to `RemoteSigned`
+1. verify file name and path
+2. inspect dependency chain
+3. inspect exports
 
-## `nicy` command not found
+## Runtime execution
 
-Cause:
-
-- PATH not persisted or not reloaded
-
-Actions:
-
-- Refresh current shell PATH
-- Open a new terminal session
-
-## Native module load failure
-
-Cause:
-
-- Wrong filename/extension/path
-- Missing dependent libraries
-- ABI mismatch
+### unexpected Luau runtime error
 
 Actions:
 
-- Verify full resolved path
-- Check binary architecture
-- Check required exports
+1. run minimal reproducer script
+2. log runtime version and entry path
+3. isolate failing module require chain

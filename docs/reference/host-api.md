@@ -1,6 +1,6 @@
 # Host API Reference (`nicyrtdyn`)
 
-## Exported host functions
+## Exported host entrypoints
 
 ### `void nicy_start(const char* filepath)`
 
@@ -8,29 +8,36 @@ Boot runtime and execute script file.
 
 ### `void nicy_eval(const char* code)`
 
-Execute source string.
+Execute inline source code.
 
 ### `void nicy_compile(const char* filepath)`
 
-Compile source file to bytecode output.
+Compile source to bytecode output.
 
 ### `const char* nicy_version(void)`
 
-Runtime version string.
+Return runtime version string.
 
 ### `const char* nicy_luau_version(void)`
 
-Embedded Luau version string.
+Return embedded Luau version string.
 
-## Host integration requirements
+## Host loading examples
 
-- Resolve all required exports on startup
-- Validate runtime/host artifact compatibility
-- Fail fast when symbols are missing
+::: code-group
 
-## Minimal C loader pattern
-
-```c
-typedef void (__cdecl *nicy_start_t)(const char*);
-typedef const char* (__cdecl *nicy_version_t)(void);
+```c [Windows]
+<<< ../examples/host/c/windows_loader.c
 ```
+
+```c [Linux/macOS]
+<<< ../examples/host/c/posix_loader.c
+```
+
+:::
+
+## Operational requirements
+
+1. resolve all required symbols before first call
+2. abort startup on missing symbol
+3. keep host/runtime release versions aligned

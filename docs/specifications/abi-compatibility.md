@@ -2,16 +2,15 @@
 
 ## Compatibility boundaries
 
-- Host API symbols (`nicy_start`, `nicy_eval`, `nicy_compile`, version functions)
-- Bare-metal C-ABI exports (`nicy_lua_*` and `nicy_luaL_*`)
+- host API symbols (`nicy_*` entrypoints)
+- low-level ABI symbols (`nicy_lua_*`, `nicy_luaL_*`)
 
-## Requirements
+## Mandatory constraints
 
-- Host and runtime should use matching release lines
-- Native modules must match runtime ABI and architecture
-- Calling convention and symbol names must be exact
+1. matching architecture across host/runtime/module
+2. stable symbol names and calling conventions
+3. aligned release line between host and runtime
 
-## Versioning recommendation
+## Release discipline
 
-- Treat ABI-breaking changes as major release events
-- Publish migration notes when signatures/semantics change
+- ABI-breaking changes require version signaling and migration notes

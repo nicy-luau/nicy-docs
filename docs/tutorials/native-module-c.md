@@ -1,48 +1,43 @@
-# Build a Native Module (C)
+# Build a Native Module (Tutorial)
 
-This tutorial builds a native shared library and loads it through `runtime.loadlib`.
+## Goal
 
-## Prerequisites
+Build `nativeAdd(a, b)` as a native module and call it from Luau.
 
-- Nicy installed and working
-- C toolchain available
+## Step 1: implement native module
 
-## Step 1: Create Luau loader
+::: code-group
 
-`main.luau`:
+```c [C]
+<<< ../examples/native/c/native_add.c
+```
+
+```cpp [C++]
+<<< ../examples/native/cpp/native_add.cpp
+```
+
+```rust [Rust]
+<<< ../examples/native/rust/src/lib.rs
+```
+
+:::
+
+## Step 2: build
+
+::: code-group
+
+```powershell [MSVC]
+cl /LD native_add.c /Fenative_add.dll
+```
+
+```bash [Rust]
+cargo build --release
+```
+
+:::
+
+## Step 3: load from Luau
 
 ```luau
-local mod = runtime.loadlib("@self/native/test_extension.dll")
-print("native module loaded:", mod ~= nil)
+<<< ../examples/luau/native/native_load_windows.luau
 ```
-
-Use `.so` on Linux or `.dylib` on macOS.
-
-## Step 2: Implement native export
-
-Your library must expose the expected entrypoints required by your runtime bridge.
-
-Minimum checks during development:
-
-- Build shared library format for your platform
-- Verify exported symbol names
-- Keep ABI and calling convention consistent
-
-## Step 3: Place and run
-
-Place the binary under `native/` and run:
-
-```bash
-nicy run main.luau
-```
-
-## Validation checklist
-
-- Library file exists at the resolved path
-- Export symbols are present
-- Runtime loads library without symbol errors
-
-## Troubleshooting
-
-- [Fix common runtime errors](/how-to/fix-common-errors)
-- [FFI / Bare Metal ABI](/reference/ffi-bare-metal)

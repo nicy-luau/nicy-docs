@@ -1,37 +1,27 @@
-# Enable JIT in Modules
+# Enable JIT in Modules (How-to)
 
-Nicy JIT/CodeGen is file-scoped, controlled by `--!native` at the top of each file.
+Goal: enable native codegen for selected modules only.
 
-## Enable JIT in one module
+## Steps
 
-`fastmath.luau`:
+1. add `--!native` to target module first line
+2. require module normally
+3. validate with `runtime.hasJIT(path)`
 
-```luau
---!native
-local M = {}
+## Example
 
-function M.mul(a, b)
-    return a * b
-end
+::: code-group
 
-return M
+```luau [Entry]
+<<< ../examples/luau/runtime/module_jit_pattern.luau
 ```
 
-Use from entry script:
-
-```luau
-local fastmath = require("./fastmath.luau")
-print(runtime.hasJIT("./fastmath.luau"))
+```luau [Native module]
+<<< ../examples/luau/runtime/fastmath.luau
 ```
 
-## Key behavior
-
-- JIT on entry file does not force JIT on all required modules
-- A module with `--!native` can use JIT even when entry file does not
-
-## Validate
-
-```luau
-print(runtime.hasJIT())
-print(runtime.hasJIT("./some-module.luau"))
+```luau [Validation]
+<<< ../examples/luau/runtime/basic_jit_check.luau
 ```
+
+:::
