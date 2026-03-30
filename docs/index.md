@@ -1,15 +1,25 @@
-# Nicy Documentation
+# Nicy Docs
 
-Nicy é um runtime/tooling para Luau com foco em distribuição de binários pronta para uso.
+Documentação oficial do ecossistema Nicy para execução de Luau com runtime nativo.
 
-## Objetivo
+## O que você encontra aqui
 
-- Instalação simples
-- Runtime nativo separado
-- Releases multi-plataforma
+- Guia de instalação com scripts oficiais
+- Uso do `nicy` CLI (`run`, `eval`, `compile`)
+- API global `runtime`
+- Scheduler cooperativo `task`
+- `require()` com cache, fingerprint e aliases
+- `nicyrtdyn` para integração host
+- FFI C-ABI para módulos bare metal
 
-## Comece agora
+## Começar
 
-- Vá para [Instalação](/install)
-- Repositórios: [nicy](https://github.com/nicy-luau/nicy) e [nicyrtdyn](https://github.com/nicy-luau/nicyrtdyn)
+- [Instalação](/install)
+- [CLI](/cli)
+- [Runtime](/runtime)
+
+## Repositórios
+
+- [nicy](https://github.com/nicy-luau/nicy)
+- [nicyrtdyn](https://github.com/nicy-luau/nicyrtdyn)
 
