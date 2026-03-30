@@ -1,51 +1,40 @@
-# Require and Cache Deep Dive
+# Require & Cache Guide
 
-Nicy runtime ships a custom `require()` pipeline designed for project-scale module trees.
+Nicy runtime uses a custom module resolver designed for real projects.
 
 ## Resolver responsibilities
 
-1. Resolve request path (relative/aliases).
-2. Normalize to canonical module location.
-3. Detect circular dependency edges.
-4. Reuse cache entry when valid.
-5. Invalidate cache when module fingerprint changes.
-
-## Why this matters
-
-Without fingerprint-based invalidation, changed modules can remain stale in long-running processes.
+1. Normalize requested path.
+2. Apply `.luaurc` aliases.
+3. Resolve module location.
+4. Detect circular dependency chain.
+5. Reuse valid cache entry.
+6. Invalidate cache when file fingerprint changes.
 
 ## Cache behavior
 
-```luau
+::: code-group
+
+```luau [Cache hit]
 local a = require("./config.luau")
 local b = require("./config.luau")
-print(a == b) -- true when cache is valid
+print(a == b) -- true
 ```
 
-## Circular dependency detection
-
-If module A requires B and B requires A during initialization, resolver emits an explicit dependency cycle error.
-
-## Alias support
-
-When `.luaurc` defines aliases, resolver applies mapping before filesystem resolution.
-
-## JIT and module boundaries
-
-JIT mode does not propagate globally through `require`.
-
-- Module with `--!native` can run with JIT.
-- Module without `--!native` stays non-native.
-
-Check state at runtime:
-
-```luau
-print(runtime.hasJIT("./some-module.luau"))
+```luau [JIT boundary check]
+local m = require("./native_module.luau")
+print("module jit:", runtime.hasJIT("./native_module.luau"))
 ```
 
-## Design tips for large projects
+:::
 
-1. Keep module side effects minimal.
-2. Use explicit initialization functions instead of heavy top-level execution.
-3. Avoid hidden dependency cycles.
-4. Use deterministic alias naming.
+## Circular dependencies
+
+If A requires B and B requires A during initialization, resolver reports cycle information instead of silently misbehaving.
+
+## Design rules for maintainable modules
+
+1. Keep top-level side effects minimal.
+2. Prefer explicit init functions for heavy setup.
+3. Keep aliases simple and deterministic.
+4. Treat cache invalidation as normal behavior during development.

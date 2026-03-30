@@ -1,118 +1,86 @@
-# Installation Guide
+# Installation
 
-This page explains **what gets installed**, how installation works on each platform, and how to recover from the most common failures.
+This page covers installation, environment setup, and policy-related issues on Windows.
 
-## What the installer does
-
-The Nicy installer performs these steps:
-
-1. Detects your OS and architecture.
-2. Fetches the latest stable releases for `nicy` and `nicyrtdyn`.
-3. Downloads matching assets for your platform.
-4. Extracts binaries into your local install directory.
-5. Adds the install directory to your user PATH.
-6. Runs a runtime smoke test (`nicy runtime-version`).
-
-## Default install locations
-
-- Windows: `%LOCALAPPDATA%\Nicy\bin`
-- Linux/macOS: `$HOME/.local/Nicy/bin`
-- Termux: `$PREFIX/opt/nicy/bin`
-
-## One-command installation
-
-### Windows (PowerShell, automatic download)
-
-```powershell
-# Downloads installer script to TEMP and executes it with policy bypass for this process only.
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$url='https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.ps1'; $dst=Join-Path $env:TEMP 'install-nicy.ps1'; Invoke-WebRequest -Uri $url -OutFile $dst; & $dst"
-```
-
-### Linux / macOS / Android (Termux)
-
-```bash
-# Streams installer script directly to bash.
-curl -fsSL https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.sh | bash
-```
-
-## Verify installation
-
-```bash
-nicy runtime-version
-```
-
-Expected: engine/runtime version information.
-
-## PowerShell execution policy troubleshooting
-
-### Error pattern
-
-- `running scripts is disabled on this system`
-
-### Safe one-time method
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\install-nicy.ps1
-```
-
-### Persistent user-level policy
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
-```
-
-### Inspect active policy chain
-
-```powershell
-Get-ExecutionPolicy -List
-```
-
-## PATH troubleshooting
-
-### Symptom
-
-- `nicy` is not recognized
-
-### Fix for current terminal
-
-```powershell
-$env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
-```
-
-Then test:
-
-```powershell
-nicy runtime-version
-```
-
-## Runtime binary troubleshooting
-
-### Symptom
-
-- `failed to load symbol 'nicy_start'`
-- `failed to load symbol 'nicy_version'`
-
-### Root cause
-
-Usually a mismatch between CLI and runtime artifacts or wrong architecture.
-
-### Fix checklist
-
-1. Reinstall using official installer.
-2. Ensure both binaries are from compatible release line.
-3. Verify runtime binary exists beside `nicy` or in PATH.
-4. Confirm architecture (`x64`, `x86`, `arm64`) matches your system.
-
-## Installer scripts source
+## Automatic install commands
 
 ::: code-group
 
-```powershell [install-nicy.ps1]
-<<< ./scripts/install-nicy.ps1
+```powershell [Windows PowerShell]
+# Downloads installer script and executes it in a single command.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$url='https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.ps1'; $dst=Join-Path $env:TEMP 'install-nicy.ps1'; Invoke-WebRequest -Uri $url -OutFile $dst; & $dst"
 ```
 
-```bash [install-nicy.sh]
-<<< ./scripts/install-nicy.sh
+```bash [Linux/macOS]
+# Streams official installer script.
+curl -fsSL https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.sh | bash
+```
+
+```bash [Android Termux]
+# Same installer flow for Termux.
+curl -fsSL https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.sh | bash
 ```
 
 :::
+
+## What the installer configures
+
+- downloads matching `nicy` + `nicyrtdyn` release assets
+- installs binaries in user-local directory
+- updates user PATH
+- runs `nicy runtime-version` smoke test
+
+## Verify installation
+
+::: code-group
+
+```powershell [Windows]
+nicy runtime-version
+```
+
+```bash [Linux/macOS/Termux]
+nicy runtime-version
+```
+
+:::
+
+## PowerShell policy and script blocking
+
+If script execution is blocked, use one of the options below.
+
+::: code-group
+
+```powershell [One-time bypass]
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install-nicy.ps1
+```
+
+```powershell [Persistent user policy]
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+```
+
+```powershell [Inspect policy chain]
+Get-ExecutionPolicy -List
+```
+
+:::
+
+## PATH not updated in current terminal
+
+::: code-group
+
+```powershell [Windows]
+$env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
+```
+
+```bash [Linux/macOS/Termux]
+source ~/.profile 2>/dev/null || true
+source ~/.bashrc 2>/dev/null || true
+source ~/.zshrc 2>/dev/null || true
+```
+
+:::
+
+## Useful next steps
+
+- [Runtime Guide](/runtime)
+- [Troubleshooting](/troubleshooting)

@@ -1,29 +1,36 @@
 # Nicy Documentation
 
-Nicy is a Luau execution stack composed of two parts:
+Nicy is a Luau execution stack built around two components:
 
-- `nicy`: CLI host executable
-- `nicyrtdyn`: dynamic runtime engine loaded by the host
+- `nicy`: the CLI host executable.
+- `nicyrtdyn`: the runtime engine loaded dynamically by the host.
 
-This documentation is organized using the Diataxis model:
+This documentation is intentionally split into practical developer tracks.
 
-- Tutorials: guided learning by doing
-- How-to guides: task-oriented procedures
-- Reference: exact API/ABI contracts
-- Explanation: architecture and design decisions
+## Track A: App developer (Luau)
 
-## Start here
+1. [Install](/install)
+2. [Runtime Guide](/runtime)
+3. [Task Guide](/task)
+4. [Require & Cache Guide](/require-cache)
 
-1. [Install and verify](/how-to/install-and-verify)
-2. [Create your first project](/tutorials/first-project)
-3. [Read runtime API reference](/reference/runtime-api)
+## Track B: Native/runtime developer
 
-## Developer tracks
+1. [nicyrtdyn Guide](/nicyrtdyn)
+2. [FFI / Bare Metal Guide](/ffi-bare-metal)
+3. [Troubleshooting](/troubleshooting)
 
-- Application developer: focus on CLI, runtime globals, `task`, and `require`
-- Runtime/plugin developer: focus on host API, FFI, ABI contracts, and error handling
+## Runtime model at a glance
 
-## Repositories
+1. `nicy run script.luau`
+2. `nicy` resolves and loads `nicyrtdyn`
+3. runtime initializes Luau state
+4. global APIs (`runtime`, `task`) are injected
+5. script and required modules are executed
 
-- [nicy](https://github.com/nicy-luau/nicy)
-- [nicyrtdyn](https://github.com/nicy-luau/nicyrtdyn)
+## Core goals of this docs set
+
+- teach real usage, not only list functions
+- show complete native module flow in multiple languages
+- provide explicit diagnostics for common failures
+- keep ABI and runtime behavior clear and testable

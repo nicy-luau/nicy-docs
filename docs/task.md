@@ -1,89 +1,67 @@
-# Task Scheduler Deep Dive
+# Task Guide
 
-Nicy provides a cooperative scheduler through the global `task` library.
+`task` provides cooperative scheduling in Luau. This page focuses on practical patterns.
 
-## Mental model
+## APIs
 
-- Scheduler is cooperative, not preemptive.
-- Code yields control via `task.wait`.
-- Long CPU loops without yield can starve other tasks.
+- `task.spawn`
+- `task.defer`
+- `task.delay`
+- `task.wait`
+- `task.cancel`
 
-## API behavior
+## When to use each API
 
-### `task.spawn(f, ...)`
+::: code-group
 
-Schedules function immediately.
-
-```luau
-task.spawn(function(name)
-    -- Useful for fire-and-forget async work.
-    print("spawn", name)
-end, "worker-A")
+```luau [spawn]
+-- Immediate async execution.
+task.spawn(function()
+    print("spawned")
+end)
 ```
 
-### `task.defer(f, ...)`
-
-Schedules for a later scheduler cycle.
-
-```luau
+```luau [defer]
+-- Defers execution to avoid re-entrant side effects.
 task.defer(function()
-    -- Useful to avoid re-entrant side effects in current call stack.
     print("deferred")
 end)
 ```
 
-### `task.delay(seconds, f, ...)`
-
-Runs callback after delay.
-
-```luau
-local delayId = task.delay(2.0, function()
-    print("delayed callback")
+```luau [delay]
+-- Time-based scheduling.
+local id = task.delay(1.5, function()
+    print("after delay")
 end)
 ```
 
-### `task.wait(seconds?)`
+:::
 
-Yields current coroutine.
-
-```luau
-task.wait(0.1)
-```
-
-### `task.cancel(thread_or_id)`
-
-Cancels delayed/scheduled work.
-
-```luau
-local id = task.delay(10, function() print("should not execute") end)
-task.cancel(id)
-```
-
-## Common anti-patterns
-
-1. Busy loops without `task.wait`.
-2. Recursive `spawn` storms without backpressure.
-3. Forgetting to cancel long delay handles.
-
-## Practical pattern: worker loop
+## Loop pattern that does not starve scheduler
 
 ```luau
 local running = true
 
 local worker = task.spawn(function()
     while running do
-        -- Do small unit of work.
-        task.wait(0.016) -- Yield every frame-like tick.
+        -- small unit of work
+        task.wait(0.016)
     end
 end)
 
--- Later:
+-- shutdown path
 running = false
 task.cancel(worker)
 ```
 
-## Debugging scheduler issues
+## Anti-patterns to avoid
 
-- Add timestamps around `spawn/defer/delay` callbacks.
-- Check whether long sync code blocks scheduler progress.
-- Reduce callback payload size to isolate hotspots.
+1. Infinite loop without `task.wait`.
+2. Unbounded recursive `task.spawn`.
+3. Never cancelling long delays.
+
+## Debug checklist
+
+- Track callback timestamps.
+- Measure long synchronous blocks.
+- Verify cancellation paths on shutdown.

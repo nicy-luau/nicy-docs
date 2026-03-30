@@ -1,92 +1,83 @@
-# Runtime Deep Dive
+# Runtime Guide
 
-This page explains how the runtime behaves at execution time and how to use it safely in real projects.
+This guide explains how scripts interact with the runtime and how to structure production code.
 
-## Runtime object
+## Runtime global overview
 
-The `runtime` global is injected by `nicyrtdyn`.
+- `runtime.version`
+- `runtime.entry_file`
+- `runtime.entry_dir`
+- `runtime.hasJIT(path?)`
+- `runtime.loadlib(path)`
 
-### `runtime.version`
+## JIT behavior (`--!native`)
 
-```luau
-print(runtime.version)
+JIT is controlled per file.
+
+- a file with `--!native` enables native codegen for itself
+- JIT does not globally propagate to all required modules
+
+::: code-group
+
+```luau [Basic JIT check]
+print("entry JIT:", runtime.hasJIT())
+print("module JIT:", runtime.hasJIT("./fastmath.luau"))
 ```
 
-Use this for diagnostics and support reports.
-
-### `runtime.entry_file`
-
-Absolute path of the entry script.
-
-### `runtime.entry_dir`
-
-Absolute directory of the entry script.
-
-### `runtime.hasJIT(path?: string)`
-
-Reports whether CodeGen/JIT is enabled for a file.
-
-```luau
-print(runtime.hasJIT())
-print(runtime.hasJIT("./module.luau"))
-```
-
-## JIT model (important)
-
-JIT is **file-scoped** in Nicy.
-
-- A file enables JIT by starting with `--!native`.
-- Entry file JIT does not force JIT for every module.
-- A required module can enable JIT independently.
-
-Example:
-
-`main.luau`
-
-```luau
+```luau [Module-level JIT]
+-- main.luau
 local fast = require("./fastmath.luau")
-print("main jit?", runtime.hasJIT())
-print("module jit?", runtime.hasJIT("./fastmath.luau"))
-print(fast.mul(6, 7))
-```
+print(fast.mul(9, 9))
 
-`fastmath.luau`
-
-```luau
+-- fastmath.luau
 --!native
 local M = {}
-
 function M.mul(a, b)
     return a * b
 end
-
 return M
 ```
 
-## Native dynamic loading: `runtime.loadlib(path)`
+:::
 
-Loads a native shared library from disk.
+## Native loading with `runtime.loadlib`
 
-```luau
-local lib = runtime.loadlib("@self/native/test_extension.dll")
-print(lib ~= nil)
+Use deterministic paths and keep binaries under project-controlled directories.
+
+::: code-group
+
+```luau [Windows DLL]
+local native = runtime.loadlib("@self/native/native_add.dll")
+print(native ~= nil)
 ```
 
-### Path features
+```luau [Linux SO]
+local native = runtime.loadlib("@self/native/libnative_add.so")
+print(native ~= nil)
+```
 
-- Relative path support
-- `@self` alias to current script directory
+```luau [macOS DYLIB]
+local native = runtime.loadlib("@self/native/libnative_add.dylib")
+print(native ~= nil)
+```
 
-### Typical failure causes
+:::
 
-- wrong extension for platform
-- missing transitive dependencies
-- incompatible binary architecture
-- expected symbols not exported
+## Recommended project layout
 
-## Production recommendations
+```text
+project/
+  main.luau
+  modules/
+    util.luau
+    fastmath.luau
+  native/
+    native_add.dll | libnative_add.so | libnative_add.dylib
+```
+
+## Production checks
 
 1. Log `runtime.version` at startup.
-2. Explicitly validate module JIT state in tests.
-3. Keep native binary loading paths deterministic.
-4. Fail fast with clear error messages when `loadlib` fails.
+2. Assert expected JIT states in tests.
+3. Fail fast when `loadlib` cannot resolve.
+4. Keep runtime and native binaries on the same release line.

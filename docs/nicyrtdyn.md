@@ -1,78 +1,80 @@
-# nicyrtdyn Runtime Engine
+# nicyrtdyn Guide
 
-`nicyrtdyn` is the dynamic runtime core used by `nicy` and custom hosts.
+`nicyrtdyn` is the runtime engine backing Nicy.
 
-## What this project is
+## What it provides
 
-- A Rust `cdylib` runtime for Luau execution.
-- Host-callable API (`nicy_start`, `nicy_eval`, `nicy_compile`).
-- Runtime globals for scripts (`runtime`, `task`).
-- Native module loading bridge and low-level C-ABI exports.
+- Luau execution environment
+- scheduler and module resolver
+- runtime globals (`runtime`, `task`)
+- host API for embedding
+- C-ABI exports for native modules
 
-## Host API (high-level)
+## Host API entrypoints
 
-### `nicy_start(const char* filepath)`
+- `nicy_start(const char* filepath)`
+- `nicy_eval(const char* code)`
+- `nicy_compile(const char* filepath)`
+- `nicy_version()`
+- `nicy_luau_version()`
 
-Boot runtime and execute script.
+## Embedding workflow
 
-### `nicy_eval(const char* code)`
+1. Load runtime shared library.
+2. Resolve required symbols.
+3. Validate symbols before executing scripts.
+4. Execute script/eval/compile operation.
 
-Execute source string in runtime context.
+## Minimal host examples
 
-### `nicy_compile(const char* filepath)`
+::: code-group
 
-Compile script to bytecode output.
-
-### `nicy_version()` / `nicy_luau_version()`
-
-Return runtime and Luau version strings.
-
-## Runtime lifecycle
-
-1. Host loads shared library.
-2. Host resolves required symbols.
-3. Runtime initializes Luau state.
-4. Runtime installs globals and resolver.
-5. Script executes.
-6. Runtime returns control/errors to host.
-
-## Embedding example (C, Windows)
-
-```c
+```c [Windows Loader]
 #include <windows.h>
-#include <stdio.h>
 
 typedef void (__cdecl *nicy_start_t)(const char*);
+
 typedef const char* (__cdecl *nicy_version_t)(void);
 
 int main(void) {
     HMODULE rt = LoadLibraryA("nicyrtdyn.dll");
-    if (!rt) {
-        fprintf(stderr, "failed to load nicyrtdyn.dll\n");
-        return 1;
-    }
+    if (!rt) return 1;
 
     nicy_start_t nicy_start = (nicy_start_t)GetProcAddress(rt, "nicy_start");
     nicy_version_t nicy_version = (nicy_version_t)GetProcAddress(rt, "nicy_version");
+    if (!nicy_start || !nicy_version) return 2;
 
-    if (!nicy_start || !nicy_version) {
-        fprintf(stderr, "missing required runtime exports\n");
-        return 2;
-    }
-
-    printf("runtime: %s\n", nicy_version());
     nicy_start("main.luau");
-
     FreeLibrary(rt);
     return 0;
 }
 ```
 
-## Native module development tracks
+```c [POSIX Loader]
+#include <dlfcn.h>
 
-- Script-level loading: `runtime.loadlib` in Luau.
-- Bare-metal integration: `nicy_lua_*` C-ABI functions.
+typedef void (*nicy_start_t)(const char*);
 
-For multi-language module examples, see:
+typedef const char* (*nicy_version_t)(void);
 
-- [FFI / Bare Metal ABI Reference](/reference/ffi-bare-metal)
+int main(void) {
+    void* rt = dlopen("libnicyrtdyn.so", RTLD_NOW);
+    if (!rt) return 1;
+
+    nicy_start_t nicy_start = (nicy_start_t)dlsym(rt, "nicy_start");
+    nicy_version_t nicy_version = (nicy_version_t)dlsym(rt, "nicy_version");
+    if (!nicy_start || !nicy_version) return 2;
+
+    nicy_start("main.luau");
+    dlclose(rt);
+    return 0;
+}
+```
+
+:::
+
+## Native module path
+
+For native module authoring details, continue to:
+
+- [FFI / Bare Metal Guide](/ffi-bare-metal)
