@@ -1,61 +1,190 @@
 # FFI / Bare Metal ABI Reference
 
-Use this layer for direct low-level integration with Luau state through `nicyrtdyn` exported C-ABI functions.
+This page teaches how to build native modules against Nicy runtime in multiple languages, with practical minimal examples and diagnostics.
 
-## Integration model
+## Integration modes
 
-- Host loads `nicyrtdyn`
-- Native extension uses exported ABI functions
-- Extension registers C functions/globals into Luau state
+There are two native integration strategies:
 
-## Safety rules
+1. **Host API mode**: host process calls `nicy_start` / `nicy_eval` / `nicy_compile`.
+2. **Bare-metal ABI mode**: native module manipulates Luau state via `nicy_lua_*` exports.
 
-1. Maintain strict stack discipline
-2. Validate all arguments with `nicy_luaL_check*`
-3. Prefer `nicy_lua_pcall` for protected boundaries
-4. Keep ABI wrappers isolated in one module
+Use bare-metal mode when you need direct stack/table/function control.
 
-## Advanced C example
+## ABI safety checklist
+
+1. Keep stack balanced for every C function return.
+2. Validate arguments using `nicy_luaL_check*`.
+3. Use `nicy_lua_pcall` where runtime errors are possible.
+4. Keep calling convention and symbol names stable.
+5. Pin module builds to runtime release line.
+
+## Language examples: one simple function (`native_add`)
+
+All examples expose `nativeAdd(a, b)` to Luau and return one integer.
+
+### C example
 
 ```c
+// native_add.c
+// Exposes nativeAdd(a, b) to Luau.
+
 typedef struct lua_State LuauState;
+typedef long long lua_Integer;
 typedef int (*lua_CFunction)(LuauState*);
-extern const char* nicy_luaL_checkstring(LuauState *l, int narg);
-extern void nicy_lua_pushstring(LuauState *l, const char *s);
+
+extern lua_Integer nicy_luaL_checkinteger(LuauState *l, int narg);
+extern void nicy_lua_pushinteger(LuauState *l, lua_Integer n);
 extern void nicy_lua_pushcfunction(LuauState *l, lua_CFunction f);
 extern void nicy_lua_setglobal(LuauState *l, const char *k);
 
-static int native_echo(LuauState* l) {
-    const char* s = nicy_luaL_checkstring(l, 1);
-    nicy_lua_pushstring(l, s);
+static int native_add(LuauState* l) {
+    // Validate args from Luau stack positions 1 and 2.
+    lua_Integer a = nicy_luaL_checkinteger(l, 1);
+    lua_Integer b = nicy_luaL_checkinteger(l, 2);
+
+    // Push one return value.
+    nicy_lua_pushinteger(l, a + b);
     return 1;
 }
 
-void register_native(LuauState* l) {
-    nicy_lua_pushcfunction(l, native_echo);
-    nicy_lua_setglobal(l, "nativeEcho");
+__declspec(dllexport) void nicy_module_init(LuauState* l) {
+    // Register global function name visible in Luau.
+    nicy_lua_pushcfunction(l, native_add);
+    nicy_lua_setglobal(l, "nativeAdd");
 }
 ```
 
-## Advanced Rust declarations
+Build (MSVC):
+
+```powershell
+cl /LD native_add.c /Fenative_add.dll
+```
+
+### C++ example
+
+```cpp
+// native_add.cpp
+// Same behavior as C version, but compiled as C++.
+
+extern "C" {
+    typedef struct lua_State LuauState;
+    typedef long long lua_Integer;
+    typedef int (*lua_CFunction)(LuauState*);
+
+    lua_Integer nicy_luaL_checkinteger(LuauState *l, int narg);
+    void nicy_lua_pushinteger(LuauState *l, lua_Integer n);
+    void nicy_lua_pushcfunction(LuauState *l, lua_CFunction f);
+    void nicy_lua_setglobal(LuauState *l, const char *k);
+}
+
+static int native_add(LuauState* l) {
+    auto a = nicy_luaL_checkinteger(l, 1);
+    auto b = nicy_luaL_checkinteger(l, 2);
+    nicy_lua_pushinteger(l, a + b);
+    return 1;
+}
+
+extern "C" __declspec(dllexport) void nicy_module_init(LuauState* l) {
+    nicy_lua_pushcfunction(l, native_add);
+    nicy_lua_setglobal(l, "nativeAdd");
+}
+```
+
+Build (MSVC):
+
+```powershell
+cl /LD native_add.cpp /EHsc /Fenative_add.dll
+```
+
+### Rust example
 
 ```rust
-use core::ffi::{c_char, c_int};
+// src/lib.rs
+// cdylib exposing nicy_module_init and nativeAdd.
+
+use core::ffi::c_char;
+use std::ffi::CString;
 
 #[repr(C)]
 pub struct LuauState {
     _private: [u8; 0],
 }
 
-pub type LuaCFunction = unsafe extern "C" fn(*mut LuauState) -> c_int;
+pub type LuaInteger = i64;
+pub type LuaCFunction = unsafe extern "C" fn(*mut LuauState) -> i32;
 
 unsafe extern "C" {
-    fn nicy_luaL_checkstring(l: *mut LuauState, narg: c_int) -> *const c_char;
-    fn nicy_lua_pushstring(l: *mut LuauState, s: *const c_char);
+    fn nicy_luaL_checkinteger(l: *mut LuauState, narg: i32) -> LuaInteger;
+    fn nicy_lua_pushinteger(l: *mut LuauState, n: LuaInteger);
     fn nicy_lua_pushcfunction(l: *mut LuauState, f: LuaCFunction);
     fn nicy_lua_setglobal(l: *mut LuauState, k: *const c_char);
 }
+
+unsafe extern "C" fn native_add(l: *mut LuauState) -> i32 {
+    // Validate args and push one result.
+    let a = nicy_luaL_checkinteger(l, 1);
+    let b = nicy_luaL_checkinteger(l, 2);
+    nicy_lua_pushinteger(l, a + b);
+    1
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn nicy_module_init(l: *mut LuauState) {
+    let name = CString::new("nativeAdd").unwrap();
+    nicy_lua_pushcfunction(l, native_add);
+    nicy_lua_setglobal(l, name.as_ptr());
+}
 ```
+
+`Cargo.toml`:
+
+```toml
+[lib]
+crate-type = ["cdylib"]
+```
+
+Build:
+
+```bash
+cargo build --release
+```
+
+Output:
+
+- Windows: `target/release/<name>.dll`
+- Linux: `target/release/lib<name>.so`
+- macOS: `target/release/lib<name>.dylib`
+
+## Luau usage example
+
+```luau
+local mod = runtime.loadlib("@self/native/native_add.dll")
+print(nativeAdd(7, 5)) -- 12
+```
+
+Use `.so`/`.dylib` on non-Windows platforms.
+
+## Troubleshooting native modules
+
+### Symbol not found
+
+- Ensure export is unmangled (`extern "C"` in C++/Rust FFI boundary).
+- Confirm symbol names with dump tool:
+  - Windows: `dumpbin /exports native_add.dll`
+  - Linux: `nm -D libnative_add.so`
+  - macOS: `nm -gU libnative_add.dylib`
+
+### Library loads but call crashes
+
+- Verify stack contract: number of pushed return values matches C function return.
+- Validate all argument positions and types.
+- Avoid invalid pointers crossing FFI boundary.
+
+### Wrong architecture
+
+- Ensure module architecture matches runtime architecture.
+- Match x64/x86/arm64 consistently.
 
 ## Full export index
 
