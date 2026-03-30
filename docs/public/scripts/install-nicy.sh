@@ -128,22 +128,35 @@ runtime_filename_for_target() {
 
 ensure_path_persisted() {
   local install_root="$1"
+  local enable_ld_path="$2"
   local shells=("$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshrc")
   local line="export PATH=\"$install_root:\$PATH\""
+  local ld_line=""
+  if [[ "$enable_ld_path" == "1" ]]; then
+    ld_line="export LD_LIBRARY_PATH=\"$install_root:${PREFIX:-}/lib:\${LD_LIBRARY_PATH:-}\""
+  fi
 
   for rc in "${shells[@]}"; do
     [[ -f "$rc" ]] || continue
     grep -Fq "$install_root" "$rc" || printf '\n%s\n' "$line" >> "$rc"
+    if [[ -n "$ld_line" ]]; then
+      grep -Fq "LD_LIBRARY_PATH=\"$install_root:${PREFIX:-}/lib" "$rc" || printf '%s\n' "$ld_line" >> "$rc"
+    fi
   done
 
   if [[ ! -f "$HOME/.profile" && ! -f "$HOME/.bashrc" && ! -f "$HOME/.zshrc" ]]; then
     printf '%s\n' "$line" >> "$HOME/.profile"
+    [[ -n "$ld_line" ]] && printf '%s\n' "$ld_line" >> "$HOME/.profile"
   fi
 
   case ":${PATH}:" in
     *":$install_root:"*) ;;
     *) export PATH="$install_root:$PATH" ;;
   esac
+
+  if [[ -n "$ld_line" ]]; then
+    export LD_LIBRARY_PATH="$install_root:${PREFIX:-}/lib:${LD_LIBRARY_PATH:-}"
+  fi
 }
 
 main() {
@@ -156,9 +169,14 @@ main() {
   local nicy_zip rt_zip nicy_url rt_url
   local nicy_asset runtime_asset runtime_file
   local nicy_bin runtime_bin
+  local termux_mode
 
   target="$(detect_platform_target)"
   log "Selected target: $target"
+  termux_mode="0"
+  if is_termux_env; then
+    termux_mode="1"
+  fi
 
   if is_termux_env && [[ -n "${PREFIX:-}" ]]; then
     install_root="${INSTALL_ROOT:-$PREFIX/opt/nicy/bin}"
@@ -216,7 +234,25 @@ main() {
   chmod +x "$install_root/nicy"
   cp -f "$runtime_bin" "$install_root/$runtime_file"
 
-  ensure_path_persisted "$install_root"
+  if [[ "$termux_mode" == "1" && -n "${PREFIX:-}" ]]; then
+    mkdir -p "$PREFIX/lib"
+    cp -f "$runtime_bin" "$PREFIX/lib/$runtime_file"
+
+    if [[ ! -f "$PREFIX/lib/libc++_shared.so" ]]; then
+      if command -v pkg >/dev/null 2>&1; then
+        log "Installing libc++ runtime dependency for Android (libc++_shared.so)"
+        pkg install -y libc++ >/dev/null 2>&1 || true
+      fi
+    fi
+
+    if [[ -f "$PREFIX/lib/libc++_shared.so" ]]; then
+      cp -f "$PREFIX/lib/libc++_shared.so" "$install_root/libc++_shared.so"
+    else
+      warn "Missing libc++_shared.so. Run: pkg install libc++"
+    fi
+  fi
+
+  ensure_path_persisted "$install_root" "$termux_mode"
 
   log "Running quick runtime check"
   if "$install_root/nicy" runtime-version >/dev/null 2>&1; then
