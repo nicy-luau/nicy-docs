@@ -59,38 +59,6 @@ extract_tag() {
   printf '%s' "$tag"
 }
 
-asset_url_from_release_json() {
-  local json="$1"
-  local asset_name="$2"
-  local one_line compact escaped_name url
-  escaped_name="$(printf '%s' "$asset_name" | sed -E 's/[][(){}.+*?^$|]/\\&/g')"
-  one_line="$(printf '%s' "$json" | tr -d '\n')"
-  compact="$(printf '%s' "$one_line" | tr -d '\r\t ')"
-  url="$(printf '%s' "$compact" | grep -Eo "\"name\":\"$escaped_name\"[^}]*\"browser_download_url\":\"[^\"]+\"" | head -n1 | sed -E 's/.*\"browser_download_url\":\"([^\"]+)\".*/\1/' || true)"
-  [[ -n "$url" ]] && printf '%s' "$url"
-}
-
-list_release_assets() {
-  local json="$1"
-  local compact
-  compact="$(printf '%s' "$json" | tr -d '\r\t\n ')"
-  printf '%s' "$compact" | grep -Eo '"name":"[^"]+"' | sed -E 's/"name":"([^"]+)"/\1/g' || true
-}
-
-pick_asset() {
-  local release_json="$1"
-  shift
-  local candidate url
-  for candidate in "$@"; do
-    url="$(asset_url_from_release_json "$release_json" "$candidate" || true)"
-    if [[ -n "$url" ]]; then
-      printf '%s|%s' "$candidate" "$url"
-      return 0
-    fi
-  done
-  return 1
-}
-
 download_asset() {
   local url="$1"
   local out="$2"
@@ -188,8 +156,6 @@ main() {
   local nicy_zip rt_zip nicy_url rt_url
   local nicy_asset runtime_asset runtime_file
   local nicy_bin runtime_bin
-  local nicy_pick runtime_pick
-  local -a nicy_candidates runtime_candidates
 
   target="$(detect_platform_target)"
   log "Selected target: $target"
@@ -219,34 +185,10 @@ main() {
   log "Nicy release: $nicy_tag"
   log "Runtime release: $rt_tag"
 
-  if [[ "$target" == "android-v7" ]]; then
-    nicy_candidates=("nicy-android-v7.zip" "nicy-android-armv7.zip" "nicy-android-arm32.zip")
-    runtime_candidates=("nicyrtdyn-android-v7.zip" "nicyrtdyn-android-armv7.zip" "nicyrtdyn-android-arm32.zip")
-  elif [[ "$target" == "android-arm" ]]; then
-    nicy_candidates=("nicy-android-arm.zip" "nicy-android-aarch64.zip" "nicy-android-arm64.zip" "nicy-android-arm64-v8a.zip")
-    runtime_candidates=("nicyrtdyn-android-arm.zip" "nicyrtdyn-android-aarch64.zip" "nicyrtdyn-android-arm64.zip" "nicyrtdyn-android-arm64-v8a.zip")
-  else
-    nicy_candidates=("nicy-$target.zip")
-    runtime_candidates=("nicyrtdyn-$target.zip")
-  fi
-
-  nicy_pick="$(pick_asset "$nicy_release_json" "${nicy_candidates[@]}" || true)"
-  runtime_pick="$(pick_asset "$rt_release_json" "${runtime_candidates[@]}" || true)"
-  if [[ -z "$nicy_pick" ]]; then
-    warn "No matching CLI asset found for target $target. Available assets:"
-    list_release_assets "$nicy_release_json" | sed 's/^/[WARN] - /' >&2
-    fail "No matching CLI asset found for target $target"
-  fi
-  if [[ -z "$runtime_pick" ]]; then
-    warn "No matching runtime asset found for target $target. Available assets:"
-    list_release_assets "$rt_release_json" | sed 's/^/[WARN] - /' >&2
-    fail "No matching runtime asset found for target $target"
-  fi
-
-  nicy_asset="${nicy_pick%%|*}"
-  nicy_url="${nicy_pick#*|}"
-  runtime_asset="${runtime_pick%%|*}"
-  rt_url="${runtime_pick#*|}"
+  nicy_asset="nicy-$target.zip"
+  runtime_asset="nicyrtdyn-$target.zip"
+  nicy_url="https://github.com/$NICY_REPO/releases/download/$nicy_tag/$nicy_asset"
+  rt_url="https://github.com/$RUNTIME_REPO/releases/download/$rt_tag/$runtime_asset"
 
   log "CLI asset: $nicy_asset"
   log "Runtime asset: $runtime_asset"
