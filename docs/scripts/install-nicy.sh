@@ -179,7 +179,7 @@ ensure_path_persisted() {
 }
 
 main() {
-  local target install_root runtime_install_dir tmp_root dl_dir ex_dir tmp_base
+  local target install_root runtime_install_dir legacy_install_root tmp_root dl_dir ex_dir tmp_base
   local nicy_release_json rt_release_json nicy_tag rt_tag
   local nicy_zip rt_zip nicy_url rt_url
   local nicy_asset runtime_asset runtime_file
@@ -202,9 +202,11 @@ main() {
   if is_termux_env && [[ -n "${PREFIX:-}" ]]; then
     install_root="${INSTALL_ROOT:-$PREFIX/bin}"
     runtime_install_dir="${RUNTIME_INSTALL_DIR:-$PREFIX/lib}"
+    legacy_install_root="$PREFIX/opt/nicy/bin"
   else
     install_root="${INSTALL_ROOT:-$HOME/.local/Nicy/bin}"
     runtime_install_dir="$install_root"
+    legacy_install_root=""
   fi
   log "Install directory: $install_root"
   log "Runtime directory: $runtime_install_dir"
@@ -276,6 +278,22 @@ main() {
     else
       warn "Missing libc++_shared.so. Run: pkg install libc++"
     fi
+
+    mkdir -p "$legacy_install_root"
+    cat > "$legacy_install_root/nicy" <<EOF
+#!/usr/bin/env sh
+export LD_LIBRARY_PATH="${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
+exec "${install_root}/nicy" "\$@"
+EOF
+    chmod +x "$legacy_install_root/nicy"
+    cp -f "$runtime_install_dir/$runtime_file" "$legacy_install_root/$runtime_file"
+    chmod 755 "$legacy_install_root/$runtime_file"
+    if [[ -f "$PREFIX/lib/libc++_shared.so" ]]; then
+      cp -f "$PREFIX/lib/libc++_shared.so" "$legacy_install_root/libc++_shared.so"
+      chmod 755 "$legacy_install_root/libc++_shared.so"
+    fi
+
+    hash -r 2>/dev/null || true
   fi
 
   ensure_path_persisted "$install_root" "$termux_mode"
@@ -296,6 +314,10 @@ main() {
   echo "Nicy asset: $nicy_asset"
   echo "Runtime asset: $runtime_asset"
   echo "PATH updated with: $install_root"
+  if [[ "$termux_mode" == "1" && -n "${PREFIX:-}" ]]; then
+    echo "Legacy compatibility path: $legacy_install_root"
+    echo "If shell still resolves old command cache, run: hash -r"
+  fi
 }
 
 main "$@"
