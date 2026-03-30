@@ -1,22 +1,27 @@
-# Nicy Docs
+# Nicy Documentation
 
-Official documentation for the Nicy Luau toolchain.
+Nicy is a Luau execution stack composed of two parts:
 
-## What you get
+- `nicy`: CLI host executable
+- `nicyrtdyn`: dynamic runtime engine loaded by the host
 
-- Cross-platform installers
-- `nicy` CLI usage (`run`, `eval`, `compile`)
-- Runtime globals (`runtime`, `task`)
-- Module loading, cache invalidation, and alias resolution
-- Dynamic runtime embedding (`nicyrtdyn`)
-- Low-level FFI and bare-metal C-ABI integration
+This documentation is organized using the Diataxis model:
 
-## Quick start
+- Tutorials: guided learning by doing
+- How-to guides: task-oriented procedures
+- Reference: exact API/ABI contracts
+- Explanation: architecture and design decisions
 
-- [Installation](/install)
-- [CLI](/cli)
-- [Runtime](/runtime)
-- [FFI / Bare Metal](/ffi-bare-metal)
+## Start here
+
+1. [Install and verify](/how-to/install-and-verify)
+2. [Create your first project](/tutorials/first-project)
+3. [Read runtime API reference](/reference/runtime-api)
+
+## Developer tracks
+
+- Application developer: focus on CLI, runtime globals, `task`, and `require`
+- Runtime/plugin developer: focus on host API, FFI, ABI contracts, and error handling
 
 ## Repositories
 

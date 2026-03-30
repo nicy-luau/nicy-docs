@@ -11,29 +11,62 @@ export default defineConfig({
     logo: "/logo.svg",
     nav: [
       { text: "Home", link: "/" },
-      { text: "Install", link: "/install" },
-      { text: "CLI", link: "/cli" },
-      { text: "Runtime", link: "/runtime" },
-      { text: "FFI", link: "/ffi-bare-metal" },
+      { text: "Getting Started", link: "/getting-started" },
+      { text: "Tutorials", link: "/tutorials/first-project" },
+      { text: "How-to", link: "/how-to/install-and-verify" },
+      { text: "Reference", link: "/reference/runtime-api" },
       { text: "GitHub", link: "https://github.com/nicy-luau" }
     ],
     sidebar: [
       {
-        text: "Nicy",
+        text: "Getting Started",
         items: [
-          { text: "Introduction", link: "/" },
-          { text: "Installation", link: "/install" },
-          { text: "CLI", link: "/cli" }
+          { text: "Project Overview", link: "/getting-started" },
+          { text: "Installation", link: "/how-to/install-and-verify" },
+          { text: "CLI Basics", link: "/reference/cli" }
         ]
       },
       {
-        text: "Runtime",
+        text: "Tutorials",
         items: [
-          { text: "Overview", link: "/runtime" },
-          { text: "Task Scheduler", link: "/task" },
-          { text: "Require and Cache", link: "/require-cache" },
-          { text: "nicyrtdyn (Host API)", link: "/nicyrtdyn" },
-          { text: "FFI / Bare Metal", link: "/ffi-bare-metal" }
+          { text: "Your First Nicy Project", link: "/tutorials/first-project" },
+          { text: "Build a Native Module", link: "/tutorials/native-module-c" }
+        ]
+      },
+      {
+        text: "How-to Guides",
+        items: [
+          { text: "Install and Verify", link: "/how-to/install-and-verify" },
+          { text: "Enable JIT in Modules", link: "/how-to/enable-jit" },
+          { text: "Load Native Libraries", link: "/how-to/load-native-libraries" },
+          { text: "Fix Common Runtime Errors", link: "/how-to/fix-common-errors" }
+        ]
+      },
+      {
+        text: "Reference",
+        items: [
+          { text: "CLI", link: "/reference/cli" },
+          { text: "Runtime API", link: "/reference/runtime-api" },
+          { text: "Task API", link: "/reference/task-api" },
+          { text: "Require and Cache", link: "/reference/require-cache" },
+          { text: "Host API (nicyrtdyn)", link: "/reference/host-api" },
+          { text: "FFI / Bare Metal ABI", link: "/reference/ffi-bare-metal" },
+          { text: "Error Catalog", link: "/reference/error-catalog" }
+        ]
+      },
+      {
+        text: "Explanation",
+        items: [
+          { text: "Architecture", link: "/explanation/architecture" },
+          { text: "JIT and Module Boundaries", link: "/explanation/jit-model" }
+        ]
+      },
+      {
+        text: "Specifications",
+        items: [
+          { text: "Module Resolution Spec", link: "/specifications/module-resolution" },
+          { text: "ABI and Compatibility", link: "/specifications/abi-compatibility" },
+          { text: "Platform Matrix", link: "/specifications/platform-matrix" }
         ]
       }
     ],
@@ -44,4 +77,3 @@ export default defineConfig({
     }
   }
 });
-
