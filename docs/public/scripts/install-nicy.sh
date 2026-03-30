@@ -38,11 +38,16 @@ ensure_termux_cmds() {
   fi
 
   command -v pkg >/dev/null 2>&1 || fail "Termux detected, but 'pkg' is not available."
+  log "Updating Termux package index"
+  pkg update -y >/dev/null 2>&1 || warn "pkg update failed; continuing with current package index"
 
   local -a packages=()
   command -v curl >/dev/null 2>&1 || packages+=("curl")
   command -v unzip >/dev/null 2>&1 || packages+=("unzip")
   command -v find >/dev/null 2>&1 || packages+=("findutils")
+  command -v termux-elf-cleaner >/dev/null 2>&1 || packages+=("termux-elf-cleaner")
+  [[ -f "${PREFIX:-}/lib/libz.so" ]] || packages+=("zlib")
+  [[ -f "${PREFIX:-}/lib/libc++_shared.so" ]] || packages+=("libc++")
 
   if [[ ${#packages[@]} -gt 0 ]]; then
     log "Installing missing Termux packages: ${packages[*]}"
@@ -265,7 +270,7 @@ main() {
     mv -f "$install_root/nicy" "$install_root/nicy.bin"
     cat > "$install_root/nicy" <<EOF
 #!/usr/bin/env sh
-export LD_LIBRARY_PATH="${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="${PREFIX}/lib:${PREFIX}/bin:\${LD_LIBRARY_PATH:-}"
 if [ -f "${PREFIX}/lib/libc++_shared.so" ]; then
   export LD_PRELOAD="${PREFIX}/lib/libc++_shared.so\${LD_PRELOAD:+:\$LD_PRELOAD}"
 fi
@@ -297,7 +302,7 @@ EOF
     mkdir -p "$legacy_install_root"
     cat > "$legacy_install_root/nicy" <<EOF
 #!/usr/bin/env sh
-export LD_LIBRARY_PATH="${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="${PREFIX}/lib:${PREFIX}/bin:\${LD_LIBRARY_PATH:-}"
 if [ -f "${PREFIX}/lib/libc++_shared.so" ]; then
   export LD_PRELOAD="${PREFIX}/lib/libc++_shared.so\${LD_PRELOAD:+:\$LD_PRELOAD}"
 fi
@@ -309,6 +314,14 @@ EOF
     if [[ -f "$PREFIX/lib/libc++_shared.so" ]]; then
       cp -f "$PREFIX/lib/libc++_shared.so" "$legacy_install_root/libc++_shared.so"
       chmod 755 "$legacy_install_root/libc++_shared.so"
+    fi
+
+    if command -v termux-elf-cleaner >/dev/null 2>&1; then
+      log "Running termux-elf-cleaner on installed binaries/libraries"
+      termux-elf-cleaner "$install_root/nicy.bin" "$install_root/$runtime_file" "$PREFIX/lib/$runtime_file" >/dev/null 2>&1 || true
+      if [[ -f "$legacy_install_root/$runtime_file" ]]; then
+        termux-elf-cleaner "$legacy_install_root/$runtime_file" >/dev/null 2>&1 || true
+      fi
     fi
 
     hash -r 2>/dev/null || true
