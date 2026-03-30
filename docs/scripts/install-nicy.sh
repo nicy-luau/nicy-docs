@@ -146,7 +146,7 @@ main() {
   ex_dir="$tmp_root/extract"
   mkdir -p "$dl_dir" "$ex_dir" "$install_root"
 
-  trap 'rm -rf "$tmp_root"' EXIT
+  trap '[[ -n "${tmp_root:-}" ]] && rm -rf "$tmp_root"' EXIT
 
   nicy_release_json="$(latest_release_json "$NICY_REPO")"
   rt_release_json="$(latest_release_json "$RUNTIME_REPO")"
