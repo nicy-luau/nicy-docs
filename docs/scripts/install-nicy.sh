@@ -262,6 +262,14 @@ main() {
   chmod 755 "$runtime_install_dir/$runtime_file"
 
   if [[ "$termux_mode" == "1" && -n "${PREFIX:-}" ]]; then
+    mv -f "$install_root/nicy" "$install_root/nicy.bin"
+    cat > "$install_root/nicy" <<EOF
+#!/usr/bin/env sh
+export LD_LIBRARY_PATH="${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
+exec "${install_root}/nicy.bin" "\$@"
+EOF
+    chmod +x "$install_root/nicy"
+
     mkdir -p "$PREFIX/lib"
     cp -f "$runtime_bin" "$PREFIX/lib/$runtime_file"
     chmod 755 "$PREFIX/lib/$runtime_file"
