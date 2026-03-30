@@ -266,6 +266,9 @@ main() {
     cat > "$install_root/nicy" <<EOF
 #!/usr/bin/env sh
 export LD_LIBRARY_PATH="${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
+if [ -f "${PREFIX}/lib/libc++_shared.so" ]; then
+  export LD_PRELOAD="${PREFIX}/lib/libc++_shared.so\${LD_PRELOAD:+:\$LD_PRELOAD}"
+fi
 exec "${install_root}/nicy.bin" "\$@"
 EOF
     chmod +x "$install_root/nicy"
@@ -295,6 +298,9 @@ EOF
     cat > "$legacy_install_root/nicy" <<EOF
 #!/usr/bin/env sh
 export LD_LIBRARY_PATH="${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
+if [ -f "${PREFIX}/lib/libc++_shared.so" ]; then
+  export LD_PRELOAD="${PREFIX}/lib/libc++_shared.so\${LD_PRELOAD:+:\$LD_PRELOAD}"
+fi
 exec "${install_root}/nicy" "\$@"
 EOF
     chmod +x "$legacy_install_root/nicy"
