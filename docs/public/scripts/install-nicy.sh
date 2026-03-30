@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+umask 022
 
 NICY_REPO="${NICY_REPO:-nicy-luau/nicy}"
 RUNTIME_REPO="${RUNTIME_REPO:-nicy-luau/nicyrtdyn}"
@@ -253,6 +254,7 @@ main() {
   cp -f "$nicy_bin" "$install_root/nicy"
   chmod +x "$install_root/nicy"
   cp -f "$runtime_bin" "$install_root/$runtime_file"
+  chmod 755 "$install_root/$runtime_file"
 
   if [[ "$termux_mode" == "1" && -n "${PREFIX:-}" ]]; then
     mv -f "$install_root/nicy" "$install_root/nicy.bin"
@@ -266,6 +268,7 @@ EOF
 
     mkdir -p "$PREFIX/lib"
     cp -f "$runtime_bin" "$PREFIX/lib/$runtime_file"
+    chmod 755 "$PREFIX/lib/$runtime_file"
 
     if [[ ! -f "$PREFIX/lib/libc++_shared.so" ]]; then
       if command -v pkg >/dev/null 2>&1; then
@@ -276,6 +279,7 @@ EOF
 
     if [[ -f "$PREFIX/lib/libc++_shared.so" ]]; then
       cp -f "$PREFIX/lib/libc++_shared.so" "$install_root/libc++_shared.so"
+      chmod 755 "$install_root/libc++_shared.so"
     else
       warn "Missing libc++_shared.so. Run: pkg install libc++"
     fi
