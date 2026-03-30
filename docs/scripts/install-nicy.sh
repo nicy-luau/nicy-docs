@@ -3,16 +3,11 @@ set -euo pipefail
 
 NICY_REPO="${NICY_REPO:-nicy-luau/nicy}"
 RUNTIME_REPO="${RUNTIME_REPO:-nicy-luau/nicyrtdyn}"
-GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 FORCE="${FORCE:-0}"
 
 api_get() {
   local url="$1"
-  if [[ -n "$GITHUB_TOKEN" ]]; then
-    curl -fsSL -H "User-Agent: nicy-installer" -H "Authorization: Bearer $GITHUB_TOKEN" "$url"
-  else
-    curl -fsSL -H "User-Agent: nicy-installer" "$url"
-  fi
+  curl -fsSL -H "User-Agent: nicy-installer" "$url"
 }
 
 latest_release_json() {
@@ -57,11 +52,7 @@ asset_url_from_release_json() {
 download_asset() {
   local url="$1"
   local out="$2"
-  if [[ -n "$GITHUB_TOKEN" ]]; then
-    curl -fL -H "User-Agent: nicy-installer" -H "Authorization: Bearer $GITHUB_TOKEN" "$url" -o "$out"
-  else
-    curl -fL -H "User-Agent: nicy-installer" "$url" -o "$out"
-  fi
+  curl -fL -H "User-Agent: nicy-installer" "$url" -o "$out"
 }
 
 detect_platform_target() {

@@ -1,6 +1,5 @@
 param(
     [string]$InstallRoot = "$env:LOCALAPPDATA\Nicy\bin",
-    [string]$GitHubToken = $env:GITHUB_TOKEN,
     [switch]$Force
 )
 
@@ -14,11 +13,7 @@ $NicyRepo = "nicy-luau/nicy"
 $RuntimeRepo = "nicy-luau/nicyrtdyn"
 
 function New-GitHubHeaders {
-    $headers = @{ "User-Agent" = "nicy-installer" }
-    if (-not [string]::IsNullOrWhiteSpace($GitHubToken)) {
-        $headers["Authorization"] = "Bearer $GitHubToken"
-    }
-    return $headers
+    return @{ "User-Agent" = "nicy-installer" }
 }
 
 function Get-HttpStatusCodeFromError {
@@ -70,7 +65,7 @@ function Get-LatestRelease {
     } catch {
         $status = Get-HttpStatusCodeFromError -Exception $_.Exception
         if ($status -eq 404) {
-            throw "Nao foi possivel acessar releases de '$Repo' (404). Verifique o nome do repo ou informe token em -GitHubToken (ou GITHUB_TOKEN) se for privado."
+            throw "Nao foi possivel acessar releases de '$Repo' (404). Verifique o nome do repositorio."
         }
         throw
     }
