@@ -36,13 +36,9 @@ Path handling:
 
 ::: code-group
 
-```luau [Inspect runtime + JIT]
-<<< @/examples/luau/runtime/basic_jit_check.luau
-```
+<<< @/examples/luau/runtime/basic_jit_check.luau [Inspect runtime + JIT]
 
-```luau [Load native library]
-<<< @/examples/luau/native/native_load_windows.luau
-```
+<<< @/examples/luau/native/native_load_windows.luau [Load native library]
 
 :::
 
@@ -51,4 +47,5 @@ Path handling:
 - unresolved library path
 - wrong binary format for platform
 - missing symbols expected by module contract
+
 

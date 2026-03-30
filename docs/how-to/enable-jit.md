@@ -12,17 +12,12 @@ Goal: enable native codegen for selected modules only.
 
 ::: code-group
 
-```luau [Entry]
-<<< @/examples/luau/runtime/module_jit_pattern.luau
-```
+<<< @/examples/luau/runtime/module_jit_pattern.luau [Entry]
 
-```luau [Native module]
-<<< @/examples/luau/runtime/fastmath.luau
-```
+<<< @/examples/luau/runtime/fastmath.luau [Native module]
 
-```luau [Validation]
-<<< @/examples/luau/runtime/basic_jit_check.luau
-```
+<<< @/examples/luau/runtime/basic_jit_check.luau [Validation]
 
 :::
+
 
