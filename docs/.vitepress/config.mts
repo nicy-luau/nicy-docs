@@ -4,6 +4,7 @@ export default defineConfig({
   title: "Nicy",
   description: "Documentação oficial do Nicy CLI e do runtime nicyrtdyn",
   lang: "pt-BR",
+  base: "/nicy-docs/",
   cleanUrls: true,
   lastUpdated: true,
   themeConfig: {
