@@ -1,0 +1,28 @@
+:root {
+  --vp-c-brand-1: #0b6bcb;
+  --vp-c-brand-2: #0a5fb5;
+  --vp-c-brand-3: #084f97;
+  --vp-font-family-base: "Space Grotesk", "Segoe UI", sans-serif;
+  --vp-font-family-mono: "IBM Plex Mono", "Cascadia Code", monospace;
+}
+
+.VPNavBarTitle .title {
+  letter-spacing: 0.02em;
+}
+
+.VPHero .name {
+  font-weight: 700;
+}
+
+.VPHero .text {
+  max-width: 760px;
+}
+
+.VPFeature {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dark .VPFeature {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
