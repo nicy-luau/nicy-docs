@@ -30,7 +30,7 @@ Cancels active scheduled unit.
 ## Example
 
 ```luau
-<<< ../examples/luau/task/worker_loop.luau
+<<< @/examples/luau/task/worker_loop.luau
 ```
 
 ## Failure modes
@@ -38,3 +38,4 @@ Cancels active scheduled unit.
 - starvation from loops without `task.wait`
 - runaway spawn recursion
 - untracked delay handles
+

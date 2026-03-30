@@ -9,15 +9,15 @@ Build `nativeAdd(a, b)` as a native module and call it from Luau.
 ::: code-group
 
 ```c [C]
-<<< ../examples/native/c/native_add.c
+<<< @/examples/native/c/native_add.c
 ```
 
 ```cpp [C++]
-<<< ../examples/native/cpp/native_add.cpp
+<<< @/examples/native/cpp/native_add.cpp
 ```
 
 ```rust [Rust]
-<<< ../examples/native/rust/src/lib.rs
+<<< @/examples/native/rust/src/lib.rs
 ```
 
 :::
@@ -39,5 +39,6 @@ cargo build --release
 ## Step 3: load from Luau
 
 ```luau
-<<< ../examples/luau/native/native_load_windows.luau
+<<< @/examples/luau/native/native_load_windows.luau
 ```
+

@@ -17,19 +17,19 @@ Expose a real native function to Luau (`nativeAdd`) using Nicy ABI.
 ::: code-group
 
 ```c [C module]
-<<< ./examples/native/c/native_add.c
+<<< @/examples/native/c/native_add.c
 ```
 
 ```cpp [C++ module]
-<<< ./examples/native/cpp/native_add.cpp
+<<< @/examples/native/cpp/native_add.cpp
 ```
 
 ```toml [Rust Cargo.toml]
-<<< ./examples/native/rust/Cargo.toml
+<<< @/examples/native/rust/Cargo.toml
 ```
 
 ```rust [Rust module]
-<<< ./examples/native/rust/src/lib.rs
+<<< @/examples/native/rust/src/lib.rs
 ```
 
 :::
@@ -65,15 +65,15 @@ cargo build --release
 ::: code-group
 
 ```luau [Windows]
-<<< ./examples/luau/native/native_load_windows.luau
+<<< @/examples/luau/native/native_load_windows.luau
 ```
 
 ```luau [Linux]
-<<< ./examples/luau/native/native_load_linux.luau
+<<< @/examples/luau/native/native_load_linux.luau
 ```
 
 ```luau [macOS]
-<<< ./examples/luau/native/native_load_macos.luau
+<<< @/examples/luau/native/native_load_macos.luau
 ```
 
 :::
@@ -88,3 +88,4 @@ cargo build --release
 ## Complete ABI list
 
 See [FFI ABI Reference Appendix](/reference/ffi-bare-metal).
+

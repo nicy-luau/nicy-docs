@@ -17,15 +17,15 @@ This page focuses on **runtime behavior**, JIT boundaries, and native loading fr
 ::: code-group
 
 ```luau [Basic runtime and JIT inspection]
-<<< ./examples/luau/runtime/basic_jit_check.luau
+<<< @/examples/luau/runtime/basic_jit_check.luau
 ```
 
 ```luau [Entry uses module with separate JIT boundary]
-<<< ./examples/luau/runtime/module_jit_pattern.luau
+<<< @/examples/luau/runtime/module_jit_pattern.luau
 ```
 
 ```luau [Native-enabled module file]
-<<< ./examples/luau/runtime/fastmath.luau
+<<< @/examples/luau/runtime/fastmath.luau
 ```
 
 :::
@@ -35,15 +35,15 @@ This page focuses on **runtime behavior**, JIT boundaries, and native loading fr
 ::: code-group
 
 ```luau [Windows DLL]
-<<< ./examples/luau/native/native_load_windows.luau
+<<< @/examples/luau/native/native_load_windows.luau
 ```
 
 ```luau [Linux SO]
-<<< ./examples/luau/native/native_load_linux.luau
+<<< @/examples/luau/native/native_load_linux.luau
 ```
 
 ```luau [macOS DYLIB]
-<<< ./examples/luau/native/native_load_macos.luau
+<<< @/examples/luau/native/native_load_macos.luau
 ```
 
 :::
@@ -54,3 +54,4 @@ This page focuses on **runtime behavior**, JIT boundaries, and native loading fr
 2. Keep native path resolution deterministic.
 3. Validate architecture compatibility in CI.
 4. Log runtime version on startup.
+

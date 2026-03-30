@@ -27,11 +27,11 @@ Return embedded Luau version string.
 ::: code-group
 
 ```c [Windows]
-<<< ../examples/host/c/windows_loader.c
+<<< @/examples/host/c/windows_loader.c
 ```
 
 ```c [Linux/macOS]
-<<< ../examples/host/c/posix_loader.c
+<<< @/examples/host/c/posix_loader.c
 ```
 
 :::
@@ -41,3 +41,4 @@ Return embedded Luau version string.
 1. resolve all required symbols before first call
 2. abort startup on missing symbol
 3. keep host/runtime release versions aligned
+

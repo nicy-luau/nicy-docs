@@ -14,15 +14,15 @@ This appendix defines the low-level exported ABI surface used by native modules.
 ::: code-group
 
 ```c [C module]
-<<< ../examples/native/c/native_add.c
+<<< @/examples/native/c/native_add.c
 ```
 
 ```cpp [C++ module]
-<<< ../examples/native/cpp/native_add.cpp
+<<< @/examples/native/cpp/native_add.cpp
 ```
 
 ```rust [Rust module]
-<<< ../examples/native/rust/src/lib.rs
+<<< @/examples/native/rust/src/lib.rs
 ```
 
 :::
@@ -94,3 +94,4 @@ int nicy_luaL_error(LuauState *l, const char *msg);
 int nicy_luaL_ref(LuauState *l, int t);
 void nicy_luaL_unref(LuauState *l, int t, int r);
 ```
+

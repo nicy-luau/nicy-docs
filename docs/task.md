@@ -13,7 +13,7 @@ This page covers practical scheduler usage patterns.
 ## Production-safe loop pattern
 
 ```luau
-<<< ./examples/luau/task/worker_loop.luau
+<<< @/examples/luau/task/worker_loop.luau
 ```
 
 ## Choosing the right primitive
@@ -29,3 +29,4 @@ This page covers practical scheduler usage patterns.
 1. Never busy-loop without `task.wait`.
 2. Always design cancellation paths.
 3. Keep async callbacks short and composable.
+

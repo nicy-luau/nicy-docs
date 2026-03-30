@@ -66,11 +66,12 @@ source ~/.zshrc 2>/dev/null || true
 ::: code-group
 
 ```powershell [install-nicy.ps1]
-<<< ./scripts/install-nicy.ps1
+<<< @/scripts/install-nicy.ps1
 ```
 
 ```bash [install-nicy.sh]
-<<< ./scripts/install-nicy.sh
+<<< @/scripts/install-nicy.sh
 ```
 
 :::
+

@@ -23,11 +23,11 @@ This guide explains the runtime engine and host embedding flow.
 ::: code-group
 
 ```c [Windows host loader]
-<<< ./examples/host/c/windows_loader.c
+<<< @/examples/host/c/windows_loader.c
 ```
 
 ```c [Linux/macOS host loader]
-<<< ./examples/host/c/posix_loader.c
+<<< @/examples/host/c/posix_loader.c
 ```
 
 :::
@@ -42,3 +42,4 @@ This guide explains the runtime engine and host embedding flow.
 ## Next step
 
 Go to [FFI / Bare Metal Guide](/ffi-bare-metal) for native module authoring.
+

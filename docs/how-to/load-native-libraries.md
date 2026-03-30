@@ -13,15 +13,16 @@ Goal: load platform-specific native library from Luau script.
 ::: code-group
 
 ```luau [Windows]
-<<< ../examples/luau/native/native_load_windows.luau
+<<< @/examples/luau/native/native_load_windows.luau
 ```
 
 ```luau [Linux]
-<<< ../examples/luau/native/native_load_linux.luau
+<<< @/examples/luau/native/native_load_linux.luau
 ```
 
 ```luau [macOS]
-<<< ../examples/luau/native/native_load_macos.luau
+<<< @/examples/luau/native/native_load_macos.luau
 ```
 
 :::
+

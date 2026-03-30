@@ -17,10 +17,11 @@
 ## Example
 
 ```luau
-<<< ../examples/luau/require/cache_hit_check.luau
+<<< @/examples/luau/require/cache_hit_check.luau
 ```
 
 ## Edge behavior
 
 - cyclic require chains produce explicit errors
 - JIT remains file-scoped and independent per module
+

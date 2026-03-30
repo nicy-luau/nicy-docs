@@ -13,7 +13,7 @@ This page explains resolver behavior and module architecture choices.
 ## Cache behavior demo
 
 ```luau
-<<< ./examples/luau/require/cache_hit_check.luau
+<<< @/examples/luau/require/cache_hit_check.luau
 ```
 
 ## Architecture recommendations
@@ -26,3 +26,4 @@ This page explains resolver behavior and module architecture choices.
 ## JIT interaction
 
 JIT mode is still file-scoped and independent per module.
+
