@@ -32,8 +32,7 @@ cargo build --release
 
 ## Step 3: load from Luau
 
-```luau
 <<< @/examples/luau/native/native_load_windows.luau
-```
+
 
 

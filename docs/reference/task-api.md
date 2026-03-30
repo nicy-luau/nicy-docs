@@ -29,13 +29,12 @@ Cancels active scheduled unit.
 
 ## Example
 
-```luau
 <<< @/examples/luau/task/worker_loop.luau
-```
 
 ## Failure modes
 
 - starvation from loops without `task.wait`
 - runaway spawn recursion
 - untracked delay handles
+
 
