@@ -255,6 +255,15 @@ main() {
   cp -f "$runtime_bin" "$install_root/$runtime_file"
 
   if [[ "$termux_mode" == "1" && -n "${PREFIX:-}" ]]; then
+    mv -f "$install_root/nicy" "$install_root/nicy.bin"
+    cat > "$install_root/nicy" <<EOF
+#!/usr/bin/env sh
+NICY_HOME="$install_root"
+export LD_LIBRARY_PATH="\$NICY_HOME:${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
+exec "\$NICY_HOME/nicy.bin" "\$@"
+EOF
+    chmod +x "$install_root/nicy"
+
     mkdir -p "$PREFIX/lib"
     cp -f "$runtime_bin" "$PREFIX/lib/$runtime_file"
 
@@ -276,7 +285,7 @@ main() {
 #!/usr/bin/env sh
 NICY_HOME="$install_root"
 export LD_LIBRARY_PATH="\$NICY_HOME:${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
-exec "\$NICY_HOME/nicy" "\$@"
+exec "\$NICY_HOME/nicy.bin" "\$@"
 EOF
     chmod +x "$wrapper_path"
   fi
