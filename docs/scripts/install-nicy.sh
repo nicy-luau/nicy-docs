@@ -273,6 +273,8 @@ EOF
     mkdir -p "$PREFIX/lib"
     cp -f "$runtime_bin" "$PREFIX/lib/$runtime_file"
     chmod 755 "$PREFIX/lib/$runtime_file"
+    cp -f "$runtime_bin" "$install_root/$runtime_file"
+    chmod 755 "$install_root/$runtime_file"
 
     if [[ ! -f "$PREFIX/lib/libc++_shared.so" ]]; then
       if command -v pkg >/dev/null 2>&1; then
@@ -283,6 +285,8 @@ EOF
 
     if [[ -f "$PREFIX/lib/libc++_shared.so" ]]; then
       chmod 755 "$PREFIX/lib/libc++_shared.so"
+      cp -f "$PREFIX/lib/libc++_shared.so" "$install_root/libc++_shared.so"
+      chmod 755 "$install_root/libc++_shared.so"
     else
       warn "Missing libc++_shared.so. Run: pkg install libc++"
     fi
