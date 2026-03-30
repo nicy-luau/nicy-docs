@@ -40,6 +40,8 @@ ensure_termux_cmds() {
   command -v pkg >/dev/null 2>&1 || fail "Termux detected, but 'pkg' is not available."
   log "Updating Termux package index"
   pkg update -y >/dev/null 2>&1 || warn "pkg update failed; continuing with current package index"
+  log "Upgrading installed Termux packages"
+  pkg upgrade -y >/dev/null 2>&1 || warn "pkg upgrade failed; continuing with current packages"
 
   local -a packages=()
   command -v curl >/dev/null 2>&1 || packages+=("curl")
