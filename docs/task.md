@@ -1,8 +1,8 @@
 # Task Guide
 
-`task` provides cooperative scheduling in Luau. This page focuses on practical patterns.
+This page covers practical scheduler usage patterns.
 
-## APIs
+## API summary
 
 - `task.spawn`
 - `task.defer`
@@ -10,58 +10,22 @@
 - `task.wait`
 - `task.cancel`
 
-## When to use each API
-
-::: code-group
-
-```luau [spawn]
--- Immediate async execution.
-task.spawn(function()
-    print("spawned")
-end)
-```
-
-```luau [defer]
--- Defers execution to avoid re-entrant side effects.
-task.defer(function()
-    print("deferred")
-end)
-```
-
-```luau [delay]
--- Time-based scheduling.
-local id = task.delay(1.5, function()
-    print("after delay")
-end)
-```
-
-:::
-
-## Loop pattern that does not starve scheduler
+## Production-safe loop pattern
 
 ```luau
-local running = true
-
-local worker = task.spawn(function()
-    while running do
-        -- small unit of work
-        task.wait(0.016)
-    end
-end)
-
--- shutdown path
-running = false
-task.cancel(worker)
+<<< ./examples/luau/task/worker_loop.luau
 ```
 
-## Anti-patterns to avoid
+## Choosing the right primitive
 
-1. Infinite loop without `task.wait`.
-2. Unbounded recursive `task.spawn`.
-3. Never cancelling long delays.
+- `spawn`: immediate asynchronous execution
+- `defer`: run later to avoid re-entrancy
+- `delay`: timed callback
+- `wait`: cooperative yield
+- `cancel`: stop delayed/active handles
 
-## Debug checklist
+## Failure prevention
 
-- Track callback timestamps.
-- Measure long synchronous blocks.
-- Verify cancellation paths on shutdown.
+1. Never busy-loop without `task.wait`.
+2. Always design cancellation paths.
+3. Keep async callbacks short and composable.

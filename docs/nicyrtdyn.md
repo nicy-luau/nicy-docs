@@ -1,80 +1,44 @@
 # nicyrtdyn Guide
 
-`nicyrtdyn` is the runtime engine backing Nicy.
+This guide explains the runtime engine and host embedding flow.
 
-## What it provides
+## What nicyrtdyn owns
 
-- Luau execution environment
-- scheduler and module resolver
-- runtime globals (`runtime`, `task`)
-- host API for embedding
-- C-ABI exports for native modules
+- Luau state initialization
+- runtime global object injection
+- task scheduler registration
+- require/cache resolver lifecycle
+- C-ABI export surface for native integrations
 
 ## Host API entrypoints
 
-- `nicy_start(const char* filepath)`
-- `nicy_eval(const char* code)`
-- `nicy_compile(const char* filepath)`
-- `nicy_version()`
-- `nicy_luau_version()`
+- `nicy_start`
+- `nicy_eval`
+- `nicy_compile`
+- `nicy_version`
+- `nicy_luau_version`
 
-## Embedding workflow
-
-1. Load runtime shared library.
-2. Resolve required symbols.
-3. Validate symbols before executing scripts.
-4. Execute script/eval/compile operation.
-
-## Minimal host examples
+## Embedding examples
 
 ::: code-group
 
-```c [Windows Loader]
-#include <windows.h>
-
-typedef void (__cdecl *nicy_start_t)(const char*);
-
-typedef const char* (__cdecl *nicy_version_t)(void);
-
-int main(void) {
-    HMODULE rt = LoadLibraryA("nicyrtdyn.dll");
-    if (!rt) return 1;
-
-    nicy_start_t nicy_start = (nicy_start_t)GetProcAddress(rt, "nicy_start");
-    nicy_version_t nicy_version = (nicy_version_t)GetProcAddress(rt, "nicy_version");
-    if (!nicy_start || !nicy_version) return 2;
-
-    nicy_start("main.luau");
-    FreeLibrary(rt);
-    return 0;
-}
+```c [Windows host loader]
+<<< ./examples/host/c/windows_loader.c
 ```
 
-```c [POSIX Loader]
-#include <dlfcn.h>
-
-typedef void (*nicy_start_t)(const char*);
-
-typedef const char* (*nicy_version_t)(void);
-
-int main(void) {
-    void* rt = dlopen("libnicyrtdyn.so", RTLD_NOW);
-    if (!rt) return 1;
-
-    nicy_start_t nicy_start = (nicy_start_t)dlsym(rt, "nicy_start");
-    nicy_version_t nicy_version = (nicy_version_t)dlsym(rt, "nicy_version");
-    if (!nicy_start || !nicy_version) return 2;
-
-    nicy_start("main.luau");
-    dlclose(rt);
-    return 0;
-}
+```c [Linux/macOS host loader]
+<<< ./examples/host/c/posix_loader.c
 ```
 
 :::
 
-## Native module path
+## Embedding checklist
 
-For native module authoring details, continue to:
+1. Resolve mandatory symbols at startup.
+2. Abort startup if any required symbol is missing.
+3. Keep runtime and host from same release line.
+4. Add smoke test (`nicy runtime-version`) in release pipeline.
 
-- [FFI / Bare Metal Guide](/ffi-bare-metal)
+## Next step
+
+Go to [FFI / Bare Metal Guide](/ffi-bare-metal) for native module authoring.

@@ -1,8 +1,8 @@
 # Runtime Guide
 
-This guide explains how scripts interact with the runtime and how to structure production code.
+This page focuses on **runtime behavior**, JIT boundaries, and native loading from Luau.
 
-## Runtime global overview
+## Runtime object
 
 - `runtime.version`
 - `runtime.entry_file`
@@ -10,74 +10,47 @@ This guide explains how scripts interact with the runtime and how to structure p
 - `runtime.hasJIT(path?)`
 - `runtime.loadlib(path)`
 
-## JIT behavior (`--!native`)
+## JIT model (file-scoped)
 
-JIT is controlled per file.
-
-- a file with `--!native` enables native codegen for itself
-- JIT does not globally propagate to all required modules
+`--!native` applies to one file at a time.
 
 ::: code-group
 
-```luau [Basic JIT check]
-print("entry JIT:", runtime.hasJIT())
-print("module JIT:", runtime.hasJIT("./fastmath.luau"))
+```luau [Basic runtime and JIT inspection]
+<<< ./examples/luau/runtime/basic_jit_check.luau
 ```
 
-```luau [Module-level JIT]
--- main.luau
-local fast = require("./fastmath.luau")
-print(fast.mul(9, 9))
+```luau [Entry uses module with separate JIT boundary]
+<<< ./examples/luau/runtime/module_jit_pattern.luau
+```
 
--- fastmath.luau
---!native
-local M = {}
-function M.mul(a, b)
-    return a * b
-end
-return M
+```luau [Native-enabled module file]
+<<< ./examples/luau/runtime/fastmath.luau
 ```
 
 :::
 
-## Native loading with `runtime.loadlib`
-
-Use deterministic paths and keep binaries under project-controlled directories.
+## Native loading from Luau
 
 ::: code-group
 
 ```luau [Windows DLL]
-local native = runtime.loadlib("@self/native/native_add.dll")
-print(native ~= nil)
+<<< ./examples/luau/native/native_load_windows.luau
 ```
 
 ```luau [Linux SO]
-local native = runtime.loadlib("@self/native/libnative_add.so")
-print(native ~= nil)
+<<< ./examples/luau/native/native_load_linux.luau
 ```
 
 ```luau [macOS DYLIB]
-local native = runtime.loadlib("@self/native/libnative_add.dylib")
-print(native ~= nil)
+<<< ./examples/luau/native/native_load_macos.luau
 ```
 
 :::
 
-## Recommended project layout
+## Runtime usage rules
 
-```text
-project/
-  main.luau
-  modules/
-    util.luau
-    fastmath.luau
-  native/
-    native_add.dll | libnative_add.so | libnative_add.dylib
-```
-
-## Production checks
-
-1. Log `runtime.version` at startup.
-2. Assert expected JIT states in tests.
-3. Fail fast when `loadlib` cannot resolve.
-4. Keep runtime and native binaries on the same release line.
+1. Treat JIT as explicit per file.
+2. Keep native path resolution deterministic.
+3. Validate architecture compatibility in CI.
+4. Log runtime version on startup.

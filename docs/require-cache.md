@@ -1,40 +1,28 @@
 # Require & Cache Guide
 
-Nicy runtime uses a custom module resolver designed for real projects.
+This page explains resolver behavior and module architecture choices.
 
 ## Resolver responsibilities
 
-1. Normalize requested path.
-2. Apply `.luaurc` aliases.
-3. Resolve module location.
-4. Detect circular dependency chain.
-5. Reuse valid cache entry.
-6. Invalidate cache when file fingerprint changes.
+1. normalize request path
+2. apply aliases (`.luaurc`)
+3. resolve canonical module path
+4. detect circular dependencies
+5. use/invalidate cache via file fingerprint
 
-## Cache behavior
+## Cache behavior demo
 
-::: code-group
-
-```luau [Cache hit]
-local a = require("./config.luau")
-local b = require("./config.luau")
-print(a == b) -- true
+```luau
+<<< ./examples/luau/require/cache_hit_check.luau
 ```
 
-```luau [JIT boundary check]
-local m = require("./native_module.luau")
-print("module jit:", runtime.hasJIT("./native_module.luau"))
-```
+## Architecture recommendations
 
-:::
+1. Keep module top-level side effects minimal.
+2. Prefer explicit init functions for heavy work.
+3. Avoid hidden dependency cycles.
+4. Keep alias maps simple and stable.
 
-## Circular dependencies
+## JIT interaction
 
-If A requires B and B requires A during initialization, resolver reports cycle information instead of silently misbehaving.
-
-## Design rules for maintainable modules
-
-1. Keep top-level side effects minimal.
-2. Prefer explicit init functions for heavy setup.
-3. Keep aliases simple and deterministic.
-4. Treat cache invalidation as normal behavior during development.
+JIT mode is still file-scoped and independent per module.

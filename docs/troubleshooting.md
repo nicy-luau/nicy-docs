@@ -1,49 +1,30 @@
 # Troubleshooting
 
-This page consolidates high-frequency issues and exact recovery steps.
+Use this page as the central diagnostics map.
 
-## `nicy` command not found
+## `nicy` not recognized
 
-Fix PATH refresh:
-
-```powershell
-$env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
-```
-
-or restart terminal.
+Refresh PATH or open a new terminal.
 
 ## `failed to load symbol 'nicy_start'`
 
-Likely cause:
+Usually runtime/CLI mismatch or wrong runtime artifact.
 
-- runtime binary incompatible with current CLI release
+## `failed to load symbol 'nicy_version'`
 
-Fix:
+Usually wrong runtime binary package or stale file in PATH.
 
-1. reinstall with official installer
-2. verify artifact architecture
-3. verify runtime binary location
+## PowerShell script execution blocked
 
-## PowerShell script policy blocked
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
-```
-
-or run one-time bypass command.
+Use one-time bypass or user-level `RemoteSigned`.
 
 ## Native module load failure
 
-Checks:
+Validate extension, architecture, exports, and dependent libraries.
 
-1. file path and extension
-2. architecture alignment
-3. exported symbol names
-4. transitive dependencies
+## Where to go next
 
-## Deep references
-
-- [Runtime Guide](/runtime)
+- [Install](/install)
 - [nicyrtdyn Guide](/nicyrtdyn)
 - [FFI / Bare Metal Guide](/ffi-bare-metal)
 - [Error Catalog](/reference/error-catalog)

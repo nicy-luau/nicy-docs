@@ -1,52 +1,33 @@
 # Installation
 
-This page covers installation, environment setup, and policy-related issues on Windows.
+Install once, verify immediately, then move to runtime usage.
 
-## Automatic install commands
+## Install commands
 
 ::: code-group
 
 ```powershell [Windows PowerShell]
-# Downloads installer script and executes it in a single command.
+# Download + execute installer in one command.
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$url='https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.ps1'; $dst=Join-Path $env:TEMP 'install-nicy.ps1'; Invoke-WebRequest -Uri $url -OutFile $dst; & $dst"
 ```
 
 ```bash [Linux/macOS]
-# Streams official installer script.
 curl -fsSL https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.sh | bash
 ```
 
 ```bash [Android Termux]
-# Same installer flow for Termux.
 curl -fsSL https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.sh | bash
 ```
 
 :::
 
-## What the installer configures
+## Verify install
 
-- downloads matching `nicy` + `nicyrtdyn` release assets
-- installs binaries in user-local directory
-- updates user PATH
-- runs `nicy runtime-version` smoke test
-
-## Verify installation
-
-::: code-group
-
-```powershell [Windows]
+```bash
 nicy runtime-version
 ```
 
-```bash [Linux/macOS/Termux]
-nicy runtime-version
-```
-
-:::
-
-## PowerShell policy and script blocking
-
-If script execution is blocked, use one of the options below.
+## PowerShell execution policy handling
 
 ::: code-group
 
@@ -54,17 +35,17 @@ If script execution is blocked, use one of the options below.
 powershell -NoProfile -ExecutionPolicy Bypass -File .\install-nicy.ps1
 ```
 
-```powershell [Persistent user policy]
+```powershell [Persistent user-level policy]
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
 ```
 
-```powershell [Inspect policy chain]
+```powershell [Inspect all active scopes]
 Get-ExecutionPolicy -List
 ```
 
 :::
 
-## PATH not updated in current terminal
+## PATH refresh
 
 ::: code-group
 
@@ -80,7 +61,16 @@ source ~/.zshrc 2>/dev/null || true
 
 :::
 
-## Useful next steps
+## Official installer scripts
 
-- [Runtime Guide](/runtime)
-- [Troubleshooting](/troubleshooting)
+::: code-group
+
+```powershell [install-nicy.ps1]
+<<< ./scripts/install-nicy.ps1
+```
+
+```bash [install-nicy.sh]
+<<< ./scripts/install-nicy.sh
+```
+
+:::
