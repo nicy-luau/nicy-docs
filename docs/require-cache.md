@@ -1,37 +1,37 @@
-# Require e Cache
+# Require and Cache
 
-O `nicyrtdyn` usa um `require()` customizado para módulos Luau.
+`nicyrtdyn` provides a custom `require()` implementation for Luau modules.
 
-## Recursos
+## Features
 
-- cache por módulo
-- fingerprint de arquivo (invalidação automática)
-- suporte a aliases em `.luaurc`
-- detecção de dependência circular
+- module cache reuse
+- file fingerprinting for cache invalidation
+- `.luaurc` alias support
+- circular dependency detection
 
-## Comportamento esperado
+## Expected behavior
 
-- Se o arquivo do módulo muda, o cache antigo é descartado.
-- Requerimentos repetidos reutilizam o módulo em memória.
-- Aliases ajudam a manter import estável em projetos grandes.
+- If a module file changes, cached state is invalidated.
+- Requiring the same module again reuses in-memory exports.
+- Alias resolution keeps imports stable in larger projects.
 
-## Exemplo simples
+## Simple example
 
 ```luau
-local util = require("./util.luau")
-local util2 = require("./util.luau")
-print(util == util2) -- true (cache)
+local utilA = require("./util.luau")
+local utilB = require("./util.luau")
+print(utilA == utilB)
 ```
 
-## Observação sobre `--!native`
+## `--!native` behavior per module
 
-O CodeGen é por arquivo/módulo:
+CodeGen is file-scoped:
 
-- se o módulo tiver `--!native`, ele pode usar JIT mesmo que o entry não tenha
-- se o entry tiver `--!native`, isso não obriga módulos sem diretiva a usar JIT
+- a module with `--!native` can run with JIT even if the entry file does not
+- an entry file with `--!native` does not force JIT on modules without it
 
-Valide com:
+Check status at runtime:
 
 ```luau
-print(runtime.hasJIT("./modulo.luau"))
+print(runtime.hasJIT("./module.luau"))
 ```

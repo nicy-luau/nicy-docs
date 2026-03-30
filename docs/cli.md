@@ -1,48 +1,48 @@
 # CLI (`nicy`)
 
-O `nicy` é o host executável que carrega o runtime `nicyrtdyn` dinamicamente.
+`nicy` is the executable host that dynamically loads `nicyrtdyn`.
 
-## Comandos
+## Commands
 
-### Executar script
-
-```bash
-nicy run arquivo.luau
-```
-
-### Executar código inline
+### Run a script
 
 ```bash
-nicy eval "print('oi')"
+nicy run script.luau
 ```
 
-### Compilar para bytecode
+### Evaluate inline code
 
 ```bash
-nicy compile arquivo.luau
+nicy eval "print('hello')"
 ```
 
-## Runtime dinâmico
+### Compile to bytecode
 
-O CLI procura a biblioteca `nicyrtdyn`:
+```bash
+nicy compile script.luau
+```
 
-- no mesmo diretório do executável `nicy`
-- ou no `PATH` do sistema
+## Dynamic runtime loading
 
-Nomes comuns por plataforma:
+`nicy` resolves `nicyrtdyn` in this order:
+
+1. The same directory as the `nicy` executable.
+2. Directories available in the system `PATH`.
+
+Shared library names by platform:
 
 - Windows: `nicyrtdyn.dll`
 - Linux: `libnicyrtdyn.so`
 - macOS: `libnicyrtdyn.dylib`
 
-## API disponível em scripts
+## Runtime APIs available to scripts
 
-Quando seu script roda via `nicy`, você tem:
+When running through `nicy`, scripts have:
 
-- objeto global `runtime`
-- biblioteca global `task`
+- global `runtime`
+- global `task`
 
-Veja:
+See:
 
 - [Runtime](/runtime)
 - [Task Scheduler](/task)

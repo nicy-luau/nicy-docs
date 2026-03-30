@@ -2,16 +2,17 @@ import { defineConfig } from "vitepress";
 
 export default defineConfig({
   title: "Nicy",
-  description: "Documentação oficial do Nicy CLI e do runtime nicyrtdyn",
-  lang: "pt-BR",
+  description: "Official documentation for Nicy CLI and nicyrtdyn runtime",
+  lang: "en-US",
   base: "/nicy-docs/",
   cleanUrls: true,
   lastUpdated: true,
   themeConfig: {
     logo: "/logo.svg",
     nav: [
-      { text: "Início", link: "/" },
-      { text: "Instalação", link: "/install" },
+      { text: "Home", link: "/" },
+      { text: "Install", link: "/install" },
+      { text: "CLI", link: "/cli" },
       { text: "Runtime", link: "/runtime" },
       { text: "FFI", link: "/ffi-bare-metal" },
       { text: "GitHub", link: "https://github.com/nicy-luau" }
@@ -20,17 +21,17 @@ export default defineConfig({
       {
         text: "Nicy",
         items: [
-          { text: "Introdução", link: "/" },
-          { text: "Instalação", link: "/install" },
+          { text: "Introduction", link: "/" },
+          { text: "Installation", link: "/install" },
           { text: "CLI", link: "/cli" }
         ]
       },
       {
         text: "Runtime",
         items: [
-          { text: "Visão Geral", link: "/runtime" },
+          { text: "Overview", link: "/runtime" },
           { text: "Task Scheduler", link: "/task" },
-          { text: "Require e Cache", link: "/require-cache" },
+          { text: "Require and Cache", link: "/require-cache" },
           { text: "nicyrtdyn (Host API)", link: "/nicyrtdyn" },
           { text: "FFI / Bare Metal", link: "/ffi-bare-metal" }
         ]

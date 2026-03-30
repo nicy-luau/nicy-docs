@@ -1,40 +1,40 @@
 # Task Scheduler
 
-O `task` é um scheduler cooperativo para corrotinas Luau.
+`task` provides cooperative scheduling for Luau coroutines.
 
 ## `task.spawn(f, ...)`
 
-Executa uma corrotina imediatamente.
+Schedules a coroutine immediately.
 
 ```luau
 task.spawn(function(name)
-    print("spawn:", name)
-end, "A")
+    print("spawn", name)
+end, "worker")
 ```
 
 ## `task.defer(f, ...)`
 
-Agenda para o próximo ciclo de execução.
+Schedules for the next scheduler cycle.
 
 ```luau
 task.defer(function()
-    print("defer")
+    print("deferred")
 end)
 ```
 
 ## `task.delay(seconds, f, ...)`
 
-Agenda execução após atraso.
+Schedules execution after a delay.
 
 ```luau
 task.delay(1.5, function()
-    print("rodou depois de 1.5s")
+    print("executed after 1.5s")
 end)
 ```
 
 ## `task.wait(seconds?)`
 
-Suspende a corrotina atual.
+Yields the current coroutine.
 
 ```luau
 task.wait(0.25)
@@ -42,15 +42,18 @@ task.wait(0.25)
 
 ## `task.cancel(thread_or_id)`
 
-Cancela tarefa agendada/em execução.
+Cancels a scheduled or running task.
 
 ```luau
-local id = task.delay(10, function() print("nao deve rodar") end)
+local id = task.delay(10, function()
+    print("should not run")
+end)
+
 task.cancel(id)
 ```
 
-## Boas práticas
+## Best practices
 
-- Evite loops infinitos sem `task.wait`.
-- Prefira `task.defer` para desacoplar callbacks.
-- Cancele delays longos quando não forem mais necessários.
+- Never busy-loop without `task.wait`.
+- Prefer `task.defer` to decouple side effects from hot call paths.
+- Cancel long-lived delayed tasks when no longer needed.

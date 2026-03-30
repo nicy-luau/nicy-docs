@@ -1,25 +1,24 @@
 # Nicy Docs
 
-Documentação oficial do ecossistema Nicy para execução de Luau com runtime nativo.
+Official documentation for the Nicy Luau toolchain.
 
-## O que você encontra aqui
+## What you get
 
-- Guia de instalação com scripts oficiais
-- Uso do `nicy` CLI (`run`, `eval`, `compile`)
-- API global `runtime`
-- Scheduler cooperativo `task`
-- `require()` com cache, fingerprint e aliases
-- `nicyrtdyn` para integração host
-- FFI C-ABI para módulos bare metal
+- Cross-platform installers
+- `nicy` CLI usage (`run`, `eval`, `compile`)
+- Runtime globals (`runtime`, `task`)
+- Module loading, cache invalidation, and alias resolution
+- Dynamic runtime embedding (`nicyrtdyn`)
+- Low-level FFI and bare-metal C-ABI integration
 
-## Começar
+## Quick start
 
-- [Instalação](/install)
+- [Installation](/install)
 - [CLI](/cli)
 - [Runtime](/runtime)
+- [FFI / Bare Metal](/ffi-bare-metal)
 
-## Repositórios
+## Repositories
 
 - [nicy](https://github.com/nicy-luau/nicy)
 - [nicyrtdyn](https://github.com/nicy-luau/nicyrtdyn)
-

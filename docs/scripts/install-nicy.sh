@@ -22,7 +22,7 @@ latest_release_json() {
   url="https://api.github.com/repos/$repo/releases?per_page=20"
   data="$(api_get "$url")"
   if [[ -z "$data" || "$data" == "[]" ]]; then
-    echo "Nenhuma release encontrada em $repo" >&2
+    echo "No release found in $repo" >&2
     exit 1
   fi
   printf '%s' "$data" | sed -n '1p'
@@ -33,7 +33,7 @@ extract_tag() {
   local tag
   tag="$(printf '%s' "$json" | tr -d '\n' | sed -E 's/.*"tag_name"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')"
   if [[ -z "$tag" || "$tag" == "$json" ]]; then
-    echo "Falha ao ler tag da release" >&2
+    echo "Failed to read release tag" >&2
     exit 1
   fi
   printf '%s' "$tag"
@@ -64,7 +64,7 @@ detect_platform_target() {
     case "$arch" in
       aarch64|arm64) echo "android-arm" ;;
       armv7l|armv8l) echo "android-v7" ;;
-      *) echo "Arquitetura Android nao suportada: $arch" >&2; exit 1 ;;
+      *) echo "Unsupported Android architecture: $arch" >&2; exit 1 ;;
     esac
     return 0
   fi
@@ -75,18 +75,18 @@ detect_platform_target() {
         x86_64|amd64) echo "linux-x64" ;;
         aarch64|arm64) echo "linux-arm" ;;
         i686|i386) echo "linux-x86" ;;
-        *) echo "Arquitetura Linux nao suportada: $arch" >&2; exit 1 ;;
+        *) echo "Unsupported Linux architecture: $arch" >&2; exit 1 ;;
       esac
       ;;
     Darwin)
       case "$arch" in
         x86_64|amd64) echo "mac-x64" ;;
         arm64|aarch64) echo "mac-arm" ;;
-        *) echo "Arquitetura macOS nao suportada: $arch" >&2; exit 1 ;;
+        *) echo "Unsupported macOS architecture: $arch" >&2; exit 1 ;;
       esac
       ;;
     *)
-      echo "Sistema nao suportado: $os" >&2
+      echo "Unsupported system: $os" >&2
       exit 1
       ;;
   esac
@@ -155,11 +155,11 @@ main() {
   rt_url="$(asset_url_from_release_json "$rt_release_json" "$runtime_asset")"
 
   if [[ -z "$nicy_url" ]]; then
-    echo "Asset nao encontrado: $nicy_asset (repo $NICY_REPO tag $nicy_tag)" >&2
+    echo "Asset not found: $nicy_asset (repo $NICY_REPO tag $nicy_tag)" >&2
     exit 1
   fi
   if [[ -z "$rt_url" ]]; then
-    echo "Asset nao encontrado: $runtime_asset (repo $RUNTIME_REPO tag $rt_tag)" >&2
+    echo "Asset not found: $runtime_asset (repo $RUNTIME_REPO tag $rt_tag)" >&2
     exit 1
   fi
 
@@ -187,10 +187,10 @@ main() {
   if "$install_root/nicy" runtime-version >/dev/null 2>&1; then
     :
   else
-    echo "Aviso: nicy instalado, mas runtime-version falhou no teste rapido." >&2
+    echo "Warning: nicy installed, but runtime-version failed in quick test." >&2
   fi
 
-  echo "Instalacao concluida"
+  echo "Installation completed"
   echo "Nicy: $install_root/nicy"
   echo "Runtime: $install_root/$runtime_file"
   echo "Target: $target"
@@ -198,8 +198,9 @@ main() {
   echo "Runtime release: $rt_tag"
   echo "Nicy asset: $nicy_asset"
   echo "Runtime asset: $runtime_asset"
-  echo "PATH atualizado com: $install_root"
+  echo "PATH updated with: $install_root"
 }
 
 main "$@"
+
 

@@ -1,10 +1,10 @@
 # Runtime
 
-O objeto global `runtime` expõe metadados e integração nativa.
+The global `runtime` object exposes host/runtime integration points.
 
 ## `runtime.version`
 
-Versão do runtime carregado (`nicyrtdyn`).
+Returns the loaded runtime version.
 
 ```luau
 print(runtime.version)
@@ -12,39 +12,39 @@ print(runtime.version)
 
 ## `runtime.hasJIT(path?: string): boolean`
 
-Retorna se o CodeGen/JIT está ativo para um arquivo.
+Returns whether CodeGen/JIT is active for a file.
 
-- sem argumento: verifica o arquivo atual
-- com caminho: verifica o módulo informado
+- no argument: checks the current file
+- with argument: checks the specified module path
 
 ```luau
 print(runtime.hasJIT())
-print(runtime.hasJIT("./modulo.luau"))
+print(runtime.hasJIT("./module.luau"))
 ```
 
-Para ativar JIT em um arquivo Luau, use `--!native` na primeira linha desse arquivo.
+To enable JIT for a file, place `--!native` on the first line of that specific file.
 
 ## `runtime.entry_file`
 
-Caminho absoluto do script de entrada.
+Absolute path of the entry script.
 
 ## `runtime.entry_dir`
 
-Diretório do script de entrada.
+Directory of the entry script.
 
 ## `runtime.loadlib(path: string)`
 
-Carrega biblioteca dinâmica nativa.
+Loads a native dynamic library.
 
-- aceita caminho relativo
-- aceita alias `@self` para diretório do script atual
+- accepts relative paths
+- supports `@self` alias for current script directory
 
 ```luau
 local ext = runtime.loadlib("@self/native/test_extension.dll")
 ```
 
-## Próximos tópicos
+## Next topics
 
 - [Task Scheduler](/task)
-- [Require e Cache](/require-cache)
+- [Require and Cache](/require-cache)
 - [FFI / Bare Metal](/ffi-bare-metal)

@@ -41,7 +41,7 @@ function Get-OsTarget {
         "X64" { return "win-x64" }
         "X86" { return "win-x86" }
         "Arm64" { return "win-arm" }
-        default { throw "Arquitetura nao suportada: $arch" }
+        default { throw "Unsupported architecture: $arch" }
     }
 }
 
@@ -65,12 +65,12 @@ function Get-LatestRelease {
     } catch {
         $status = Get-HttpStatusCodeFromError -Exception $_.Exception
         if ($status -eq 404) {
-            throw "Nao foi possivel acessar releases de '$Repo' (404). Verifique o nome do repositorio."
+            throw "Could not access releases for '$Repo' (404). Check the repository name."
         }
         throw
     }
     if ($null -eq $releases -or $releases.Count -eq 0) {
-        throw "Nenhuma release encontrada em '$Repo'. Publique uma release no GitHub antes de instalar."
+        throw "No release found in '$Repo'. Publish a GitHub release before installing."
     }
 
     $stable = $releases | Where-Object { -not $_.draft -and -not $_.prerelease } | Select-Object -First 1
@@ -80,11 +80,11 @@ function Get-LatestRelease {
 
     $nonDraft = $releases | Where-Object { -not $_.draft } | Select-Object -First 1
     if ($null -ne $nonDraft) {
-        Write-Host "Aviso: usando prerelease '$($nonDraft.tag_name)' de $Repo" -ForegroundColor Yellow
+        Write-Host "Warning: using prerelease '$($nonDraft.tag_name)' from $Repo" -ForegroundColor Yellow
         return $nonDraft
     }
 
-    throw "Nao existe release publica utilizavel em '$Repo'."
+    throw "No usable public release exists in '$Repo'."
 }
 
 function Select-AssetUrl {
@@ -101,7 +101,7 @@ function Select-AssetUrl {
     }
 
     $names = ($Release.assets | Select-Object -ExpandProperty name) -join ", "
-    throw "Nenhum asset encontrado. Esperado: $($Candidates -join ', '). Disponiveis: $names"
+    throw "No asset found. Expected: $($Candidates -join ', '). Available: $names"
 }
 
 function Find-Asset {
@@ -149,7 +149,7 @@ function Add-UserPathIfMissing {
         try {
             $envKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Environment", $true)
             if ($null -eq $envKey) {
-                throw "Nao foi possivel abrir HKCU\\Environment para escrita."
+                throw "Could not open HKCU\\Environment for writing."
             }
             $envKey.SetValue("Path", $newPath, [Microsoft.Win32.RegistryValueKind]::ExpandString)
             $envKey.Close()
@@ -164,8 +164,8 @@ function Add-UserPathIfMissing {
         }
 
         if (-not $persisted) {
-            Write-Host "Aviso: nao foi possivel persistir PATH de usuario automaticamente." -ForegroundColor Yellow
-            Write-Host "Execute manualmente depois:" -ForegroundColor Yellow
+            Write-Host "Warning: could not persist user PATH automatically." -ForegroundColor Yellow
+            Write-Host "Run manually later:" -ForegroundColor Yellow
             Write-Host "[Environment]::SetEnvironmentVariable('Path', ([Environment]::GetEnvironmentVariable('Path','User') + ';$PathToAdd'), 'User')" -ForegroundColor Yellow
         }
     }
@@ -266,11 +266,11 @@ try {
 
     if ($nicyAssets.Count -eq 0) {
         $nicyUrl = Select-AssetUrl -Release $nicyRelease -Candidates $nicyCandidates
-        throw "Nao foi possivel preparar nicy.exe a partir de: $nicyUrl"
+        throw "Could not prepare nicy.exe from: $nicyUrl"
     }
     if ($runtimeAssets.Count -eq 0) {
         $runtimeUrl = Select-AssetUrl -Release $runtimeRelease -Candidates $runtimeCandidates
-        throw "Nao foi possivel preparar nicyrtdyn.dll a partir de: $runtimeUrl"
+        throw "Could not prepare nicyrtdyn.dll from: $runtimeUrl"
     }
 
     $selected = $null
@@ -301,12 +301,12 @@ try {
     if ($null -eq $selected) {
         $nList = ($nicyAssets | ForEach-Object { $_.Name }) -join ", "
         $rList = ($runtimeAssets | ForEach-Object { $_.Name }) -join ", "
-        throw "Nenhuma combinacao de assets funcionou. Nicy: [$nList] Runtime: [$rList]"
+        throw "No asset combination worked. Nicy: [$nList] Runtime: [$rList]"
     }
 
     Add-UserPathIfMissing -PathToAdd $InstallRoot
 
-    Write-Host "Instalacao concluida"
+    Write-Host "Installation completed"
     Write-Host "Nicy: $(Join-Path $InstallRoot 'nicy.exe')"
     Write-Host "Runtime: $(Join-Path $InstallRoot 'nicyrtdyn.dll')"
     Write-Host "Target: $target"
@@ -314,8 +314,8 @@ try {
     Write-Host "Runtime release: $($runtimeRelease.tag_name)"
     Write-Host "Nicy asset: $($selected.NicyAsset)"
     Write-Host "Runtime asset: $($selected.RuntimeAsset)"
-    Write-Host "PATH do usuario atualizado com: $InstallRoot"
-    Write-Host "Para usar no terminal atual, rode:"
+    Write-Host "User PATH updated with: $InstallRoot"
+    Write-Host "To use it in the current terminal, run:"
     Write-Host '$env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")'
 }
 finally {
@@ -323,3 +323,4 @@ finally {
         Remove-Item -LiteralPath $tmpRoot -Recurse -Force
     }
 }
+
