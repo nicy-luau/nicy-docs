@@ -179,12 +179,12 @@ ensure_path_persisted() {
 }
 
 main() {
-  local target install_root tmp_root dl_dir ex_dir tmp_base
+  local target install_root runtime_install_dir tmp_root dl_dir ex_dir tmp_base
   local nicy_release_json rt_release_json nicy_tag rt_tag
   local nicy_zip rt_zip nicy_url rt_url
   local nicy_asset runtime_asset runtime_file
   local nicy_bin runtime_bin
-  local termux_mode wrapper_path
+  local termux_mode
 
   termux_mode="0"
   if is_termux_env; then
@@ -200,18 +200,21 @@ main() {
   log "Selected target: $target"
 
   if is_termux_env && [[ -n "${PREFIX:-}" ]]; then
-    install_root="${INSTALL_ROOT:-$PREFIX/opt/nicy/bin}"
+    install_root="${INSTALL_ROOT:-$PREFIX/bin}"
+    runtime_install_dir="${RUNTIME_INSTALL_DIR:-$PREFIX/lib}"
   else
     install_root="${INSTALL_ROOT:-$HOME/.local/Nicy/bin}"
+    runtime_install_dir="$install_root"
   fi
   log "Install directory: $install_root"
+  log "Runtime directory: $runtime_install_dir"
 
   tmp_base="${TMPDIR:-/tmp}"
   tmp_root="$tmp_base/nicy-install-$(date +%s)-$$"
   mkdir -p "$tmp_root"
   dl_dir="$tmp_root/downloads"
   ex_dir="$tmp_root/extract"
-  mkdir -p "$dl_dir" "$ex_dir" "$install_root"
+  mkdir -p "$dl_dir" "$ex_dir" "$install_root" "$runtime_install_dir"
   log "Temporary workspace: $tmp_root"
 
   trap '[[ -n "${tmp_root:-}" ]] && rm -rf "$tmp_root"' EXIT
@@ -253,19 +256,10 @@ main() {
 
   cp -f "$nicy_bin" "$install_root/nicy"
   chmod +x "$install_root/nicy"
-  cp -f "$runtime_bin" "$install_root/$runtime_file"
-  chmod 755 "$install_root/$runtime_file"
+  cp -f "$runtime_bin" "$runtime_install_dir/$runtime_file"
+  chmod 755 "$runtime_install_dir/$runtime_file"
 
   if [[ "$termux_mode" == "1" && -n "${PREFIX:-}" ]]; then
-    mv -f "$install_root/nicy" "$install_root/nicy.bin"
-    cat > "$install_root/nicy" <<EOF
-#!/usr/bin/env sh
-NICY_HOME="$install_root"
-export LD_LIBRARY_PATH="\$NICY_HOME:${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
-exec "\$NICY_HOME/nicy.bin" "\$@"
-EOF
-    chmod +x "$install_root/nicy"
-
     mkdir -p "$PREFIX/lib"
     cp -f "$runtime_bin" "$PREFIX/lib/$runtime_file"
     chmod 755 "$PREFIX/lib/$runtime_file"
@@ -278,20 +272,10 @@ EOF
     fi
 
     if [[ -f "$PREFIX/lib/libc++_shared.so" ]]; then
-      cp -f "$PREFIX/lib/libc++_shared.so" "$install_root/libc++_shared.so"
-      chmod 755 "$install_root/libc++_shared.so"
+      chmod 755 "$PREFIX/lib/libc++_shared.so"
     else
       warn "Missing libc++_shared.so. Run: pkg install libc++"
     fi
-
-    wrapper_path="$PREFIX/bin/nicy"
-    cat > "$wrapper_path" <<EOF
-#!/usr/bin/env sh
-NICY_HOME="$install_root"
-export LD_LIBRARY_PATH="\$NICY_HOME:${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
-exec "\$NICY_HOME/nicy.bin" "\$@"
-EOF
-    chmod +x "$wrapper_path"
   fi
 
   ensure_path_persisted "$install_root" "$termux_mode"
@@ -305,7 +289,7 @@ EOF
 
   echo "Installation completed"
   echo "Nicy: $install_root/nicy"
-  echo "Runtime: $install_root/$runtime_file"
+  echo "Runtime: $runtime_install_dir/$runtime_file"
   echo "Target: $target"
   echo "Nicy release: $nicy_tag"
   echo "Runtime release: $rt_tag"
