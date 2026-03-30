@@ -31,6 +31,24 @@ require_cmd() {
   command -v "$cmd" >/dev/null 2>&1 || fail "Required command not found: $cmd"
 }
 
+ensure_termux_cmds() {
+  if ! is_termux_env; then
+    return 0
+  fi
+
+  command -v pkg >/dev/null 2>&1 || fail "Termux detected, but 'pkg' is not available."
+
+  local -a packages=()
+  command -v curl >/dev/null 2>&1 || packages+=("curl")
+  command -v unzip >/dev/null 2>&1 || packages+=("unzip")
+  command -v find >/dev/null 2>&1 || packages+=("findutils")
+
+  if [[ ${#packages[@]} -gt 0 ]]; then
+    log "Installing missing Termux packages: ${packages[*]}"
+    pkg install -y "${packages[@]}" >/dev/null 2>&1 || fail "Failed to install required Termux packages: ${packages[*]}"
+  fi
+}
+
 api_get() {
   local url="$1"
   curl -fsSL -H "User-Agent: nicy-installer" "$url"
@@ -160,23 +178,25 @@ ensure_path_persisted() {
 }
 
 main() {
-  require_cmd curl
-  require_cmd unzip
-  require_cmd find
-
   local target install_root tmp_root dl_dir ex_dir tmp_base
   local nicy_release_json rt_release_json nicy_tag rt_tag
   local nicy_zip rt_zip nicy_url rt_url
   local nicy_asset runtime_asset runtime_file
   local nicy_bin runtime_bin
-  local termux_mode
+  local termux_mode wrapper_path
 
-  target="$(detect_platform_target)"
-  log "Selected target: $target"
   termux_mode="0"
   if is_termux_env; then
     termux_mode="1"
+    ensure_termux_cmds
   fi
+
+  require_cmd curl
+  require_cmd unzip
+  require_cmd find
+
+  target="$(detect_platform_target)"
+  log "Selected target: $target"
 
   if is_termux_env && [[ -n "${PREFIX:-}" ]]; then
     install_root="${INSTALL_ROOT:-$PREFIX/opt/nicy/bin}"
@@ -250,6 +270,15 @@ main() {
     else
       warn "Missing libc++_shared.so. Run: pkg install libc++"
     fi
+
+    wrapper_path="$PREFIX/bin/nicy"
+    cat > "$wrapper_path" <<EOF
+#!/usr/bin/env sh
+NICY_HOME="$install_root"
+export LD_LIBRARY_PATH="\$NICY_HOME:${PREFIX}/lib:\${LD_LIBRARY_PATH:-}"
+exec "\$NICY_HOME/nicy" "\$@"
+EOF
+    chmod +x "$wrapper_path"
   fi
 
   ensure_path_persisted "$install_root" "$termux_mode"
