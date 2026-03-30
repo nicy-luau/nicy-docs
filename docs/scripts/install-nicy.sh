@@ -6,7 +6,7 @@ RUNTIME_REPO="${RUNTIME_REPO:-nicy-luau/nicyrtdyn}"
 FORCE="${FORCE:-0}"
 
 log() {
-  printf '[INFO] %s\n' "$*"
+  printf '[INFO] %s\n' "$*" >&2
 }
 
 warn() {
@@ -63,7 +63,7 @@ asset_url_from_release_json() {
   local json="$1"
   local asset_name="$2"
   local one_line escaped_name url
-  escaped_name="$(printf '%s' "$asset_name" | sed -E 's/[][(){}.+*?^$|\\/]/\\&/g')"
+  escaped_name="$(printf '%s' "$asset_name" | sed -E 's/[][(){}.+*?^$|]/\\&/g')"
   one_line="$(printf '%s' "$json" | tr -d '\n')"
   url="$(printf '%s' "$one_line" | grep -Eo "\"name\":\"$escaped_name\"[^}]*\"browser_download_url\":\"[^\"]+\"" | head -n1 | sed -E 's/.*\"browser_download_url\":\"([^\"]+)\".*/\1/' || true)"
   [[ -n "$url" ]] && printf '%s' "$url"
@@ -214,6 +214,9 @@ main() {
   if [[ "$target" == "android-v7" ]]; then
     nicy_candidates=("nicy-android-v7.zip" "nicy-android-armv7.zip" "nicy-android-arm32.zip")
     runtime_candidates=("nicyrtdyn-android-v7.zip" "nicyrtdyn-android-armv7.zip" "nicyrtdyn-android-arm32.zip")
+  elif [[ "$target" == "android-arm" ]]; then
+    nicy_candidates=("nicy-android-arm.zip" "nicy-android-aarch64.zip" "nicy-android-arm64.zip" "nicy-android-arm64-v8a.zip")
+    runtime_candidates=("nicyrtdyn-android-arm.zip" "nicyrtdyn-android-aarch64.zip" "nicyrtdyn-android-arm64.zip" "nicyrtdyn-android-arm64-v8a.zip")
   else
     nicy_candidates=("nicy-$target.zip")
     runtime_candidates=("nicyrtdyn-$target.zip")
