@@ -62,11 +62,19 @@ extract_tag() {
 asset_url_from_release_json() {
   local json="$1"
   local asset_name="$2"
-  local one_line escaped_name url
+  local one_line compact escaped_name url
   escaped_name="$(printf '%s' "$asset_name" | sed -E 's/[][(){}.+*?^$|]/\\&/g')"
   one_line="$(printf '%s' "$json" | tr -d '\n')"
-  url="$(printf '%s' "$one_line" | grep -Eo "\"name\":\"$escaped_name\"[^}]*\"browser_download_url\":\"[^\"]+\"" | head -n1 | sed -E 's/.*\"browser_download_url\":\"([^\"]+)\".*/\1/' || true)"
+  compact="$(printf '%s' "$one_line" | tr -d '\r\t ')"
+  url="$(printf '%s' "$compact" | grep -Eo "\"name\":\"$escaped_name\"[^}]*\"browser_download_url\":\"[^\"]+\"" | head -n1 | sed -E 's/.*\"browser_download_url\":\"([^\"]+)\".*/\1/' || true)"
   [[ -n "$url" ]] && printf '%s' "$url"
+}
+
+list_release_assets() {
+  local json="$1"
+  local compact
+  compact="$(printf '%s' "$json" | tr -d '\r\t\n ')"
+  printf '%s' "$compact" | grep -Eo '"name":"[^"]+"' | sed -E 's/"name":"([^"]+)"/\1/g' || true
 }
 
 pick_asset() {
@@ -224,8 +232,16 @@ main() {
 
   nicy_pick="$(pick_asset "$nicy_release_json" "${nicy_candidates[@]}" || true)"
   runtime_pick="$(pick_asset "$rt_release_json" "${runtime_candidates[@]}" || true)"
-  [[ -n "$nicy_pick" ]] || fail "No matching CLI asset found for target $target"
-  [[ -n "$runtime_pick" ]] || fail "No matching runtime asset found for target $target"
+  if [[ -z "$nicy_pick" ]]; then
+    warn "No matching CLI asset found for target $target. Available assets:"
+    list_release_assets "$nicy_release_json" | sed 's/^/[WARN] - /' >&2
+    fail "No matching CLI asset found for target $target"
+  fi
+  if [[ -z "$runtime_pick" ]]; then
+    warn "No matching runtime asset found for target $target. Available assets:"
+    list_release_assets "$rt_release_json" | sed 's/^/[WARN] - /' >&2
+    fail "No matching runtime asset found for target $target"
+  fi
 
   nicy_asset="${nicy_pick%%|*}"
   nicy_url="${nicy_pick#*|}"
