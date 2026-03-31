@@ -17,6 +17,7 @@ Absolute directory of entry script.
 ### `runtime.hasJIT(path?: string): boolean`
 
 Returns JIT state for current file or target module path.
+On Android/Termux builds, this currently returns `false` because runtime codegen is disabled for stability.
 
 Contract:
 

@@ -4,6 +4,8 @@
 
 JIT is file-scoped (`--!native`), not global.
 
+Android/Termux note: current runtime builds disable Luau CodeGen/JIT on mobile for stability. In that environment, `--!native` is accepted but not activated, and `runtime.hasJIT(...)` stays `false`.
+
 ## Why this design
 
 - predictable module behavior

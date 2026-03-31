@@ -2,6 +2,8 @@
 
 Goal: enable native codegen for selected modules only.
 
+Android/Termux note: current mobile runtime builds disable codegen for stability. In Android, this guide does not activate JIT and `runtime.hasJIT(...)` remains `false`.
+
 ## Steps
 
 1. add `--!native` to target module first line
