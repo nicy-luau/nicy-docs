@@ -1,6 +1,10 @@
 import { defineConfig } from "vitepress";
 
 export default defineConfig({
+  sitemap: {
+    hostname: 'https://nicy-luau.github.io/nicy-docs/'
+  },
+
   title: "Nicy",
   description: "Nicy and nicyrtdyn documentation: runtime usage, native modules, and ABI reference",
   lang: "en-US",
