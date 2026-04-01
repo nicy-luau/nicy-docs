@@ -2,13 +2,12 @@
 
 Install once, verify immediately, then move to runtime usage.
 
-## Install commands
+## Quick install (one-line)
 
 ::: code-group
 
 ```powershell [Windows PowerShell]
-# Download + execute installer in one command.
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$url='https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.ps1'; $dst=Join-Path $env:TEMP 'install-nicy.ps1'; Invoke-WebRequest -Uri $url -OutFile $dst; & $dst"
+irm https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.ps1 | iex
 ```
 
 ```bash [Linux/macOS]
@@ -17,6 +16,24 @@ curl -fsSL https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.sh | bash
 
 ```bash [Android Termux]
 curl -fsSL https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.sh | bash
+```
+
+:::
+
+## Alternative install commands
+
+::: code-group
+
+```powershell [Windows PowerShell - Download first]
+$url='https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.ps1'
+$dst=Join-Path $env:TEMP 'install-nicy.ps1'
+Invoke-WebRequest -Uri $url -OutFile $dst
+& $dst
+```
+
+```bash [Linux/macOS - Download first]
+curl -fsSL https://nicy-luau.github.io/nicy-docs/scripts/install-nicy.sh -o /tmp/install-nicy.sh
+bash /tmp/install-nicy.sh
 ```
 
 :::

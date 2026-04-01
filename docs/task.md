@@ -10,6 +10,17 @@ This page covers practical scheduler usage patterns.
 - `task.wait`
 - `task.cancel`
 
+## `task.wait` behavior
+
+When called without arguments, `task.wait()` yields for a minimum of ~0.007s (140Hz).
+Values below this threshold are clamped to the minimum to prevent busy-loops.
+
+```luau
+task.wait()      -- yields ~0.007s (minimum)
+task.wait(0)     -- yields ~0.007s (minimum)
+task.wait(0.1)   -- yields ~0.1s
+```
+
 ## Production-safe loop pattern
 
 <<< @/examples/luau/task/worker_loop.luau
@@ -19,7 +30,7 @@ This page covers practical scheduler usage patterns.
 - `spawn`: immediate asynchronous execution
 - `defer`: run later to avoid re-entrancy
 - `delay`: timed callback
-- `wait`: cooperative yield
+- `wait`: cooperative yield (minimum ~0.007s)
 - `cancel`: stop delayed/active handles
 
 ## Failure prevention

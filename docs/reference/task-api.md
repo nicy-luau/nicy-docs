@@ -18,6 +18,16 @@ Schedules callback after delay.
 
 Yields current coroutine for optional duration.
 
+**Minimum duration:** ~0.007s (140Hz). Values below this threshold are clamped to prevent busy-loops.
+
+```luau
+task.wait()      -- yields ~0.007s (minimum)
+task.wait(0)     -- yields ~0.007s (minimum)  
+task.wait(0.1)   -- yields ~0.1s
+```
+
+Returns elapsed time.
+
 ### `task.cancel(thread_or_id): ()`
 
 Cancels active scheduled unit.
@@ -26,6 +36,7 @@ Cancels active scheduled unit.
 
 - cooperative
 - explicit yield-based progress
+- minimum yield duration: ~0.007s (140Hz)
 
 ## Example
 

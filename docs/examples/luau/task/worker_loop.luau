@@ -7,6 +7,7 @@ local worker = task.spawn(function()
     while running do
         -- Do one small unit of work per iteration.
         -- Yield to avoid starving other scheduled tasks.
+        -- Minimum wait is ~0.007s (140Hz) when no argument is provided.
         task.wait(0.016)
     end
 end)
