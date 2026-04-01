@@ -4,7 +4,7 @@
 // Entry point: pub unsafe extern "C-unwind" fn nicydinamic_init(l: *mut LuauState) -> c_int
 // Note: The function name must be exactly "nicydinamic_init" or "nicydynamic_init"
 
-use core::ffi::c_int;
+use core::ffi::{c_char, c_int};
 
 #[repr(C)]
 pub struct LuauState {
