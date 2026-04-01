@@ -4,13 +4,16 @@ This page is for native module authors.
 
 ## Objective
 
-Expose a real native function to Luau (`nativeAdd`) using Nicy ABI.
+Expose a real native function to Luau using Nicy ABI.
 
 ## Important ABI contract
 
-- validate input stack arguments
-- push the correct number of return values
-- use C ABI exports exactly as declared
+- **Entry point function name:** `nicydinamic_init` or `nicydynamic_init` (spelling variants accepted)
+- **Function signature:** `pub unsafe extern "C-unwind" fn nicydinamic_init(l: *mut LuauState) -> c_int` (Rust) or `int nicydinamic_init(LuauState* l)` (C/C++)
+- **Return value:** Number of values left on the stack (usually 1 for module table)
+- **Validate input stack arguments** using `nicy_luaL_check*` functions
+- **Push the correct number of return values** before returning
+- **Use C ABI boundary explicitly** (`extern "C"` for C++, `extern "C-unwind"` for Rust)
 
 ## Native module implementations
 
@@ -66,10 +69,11 @@ cargo build --release
 
 ## Frequent failure modes
 
-1. Symbol not found: missing `extern "C"` or wrong export name.
-2. Crash on call: invalid stack contract.
-3. Load error: wrong architecture or missing dependencies.
-4. Runtime mismatch: incompatible CLI/runtime release pair.
+1. **Symbol not found:** Wrong entry point name (must be `nicydinamic_init` or `nicydynamic_init`)
+2. **Wrong signature:** Must return `int`, not `void`
+3. **Crash on call:** Invalid stack contract or missing `extern "C-unwind"` (Rust)
+4. **Load error:** Wrong architecture or missing dependencies
+5. **Runtime mismatch:** Incompatible CLI/runtime release pair
 
 ## Complete ABI list
 

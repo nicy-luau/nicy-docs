@@ -2,12 +2,37 @@
 
 This appendix defines the low-level exported ABI surface used by native modules.
 
+## Module entry point
+
+Native modules must export exactly one of these entry points:
+
+- `nicydinamic_init` (preferred spelling)
+- `nicydynamic_init` (alternative spelling)
+
+### Signature
+
+**Rust:**
+```rust
+#[unsafe(no_mangle)]
+pub unsafe extern "C-unwind" fn nicydinamic_init(l: *mut LuauState) -> c_int
+```
+
+**C/C++:**
+```c
+__declspec(dllexport) int nicydinamic_init(LuauState* l);
+```
+
+### Return value
+
+The entry point must return the **number of values left on the stack** (typically 1 for a module table).
+
 ## ABI safety requirements
 
-1. validate arguments (`nicy_luaL_check*`)
-2. push exactly declared return values
-3. maintain stack integrity across calls
-4. keep C ABI boundaries explicit (`extern "C"` where needed)
+1. Validate arguments using `nicy_luaL_check*` functions
+2. Push exactly the declared number of return values
+3. Maintain stack integrity across calls
+4. Keep C ABI boundaries explicit (`extern "C"` for C++, `extern "C-unwind"` for Rust)
+5. Use `__declspec(dllexport)` on Windows for the entry point
 
 ## Core examples
 

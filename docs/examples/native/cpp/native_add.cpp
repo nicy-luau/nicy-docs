@@ -1,5 +1,8 @@
 // native_add.cpp
 // C++ variant of nativeAdd module with C ABI boundary.
+//
+// Entry point: extern "C" __declspec(dllexport) int nicydinamic_init(LuauState* l)
+// Note: The function name must be exactly "nicydinamic_init" or "nicydynamic_init"
 
 extern "C" {
     typedef struct lua_State LuauState;
@@ -10,6 +13,7 @@ extern "C" {
     void nicy_lua_pushinteger(LuauState *l, lua_Integer n);
     void nicy_lua_pushcfunction(LuauState *l, lua_CFunction f);
     void nicy_lua_setglobal(LuauState *l, const char *k);
+    void nicy_lua_createtable(LuauState *l, int narr, int nrec);
 }
 
 static int native_add(LuauState* l) {
@@ -19,7 +23,15 @@ static int native_add(LuauState* l) {
     return 1;
 }
 
-extern "C" __declspec(dllexport) void nicy_module_init(LuauState* l) {
+// Module entry point - called by nicyrtdyn when loading the module
+// Must return the number of values on the stack (usually 1 for module table)
+extern "C" __declspec(dllexport) int nicydinamic_init(LuauState* l) {
+    // Create a table for module exports (optional - can also use globals)
+    nicy_lua_createtable(l, 0, 1);
+    
     nicy_lua_pushcfunction(l, native_add);
     nicy_lua_setglobal(l, "nativeAdd");
+    
+    // Return 1 (the module table on stack)
+    return 1;
 }
