@@ -13,11 +13,11 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
   head: [
-    ["link", { rel: "icon", href: "/favicon.png", sizes: "any" }],
-    ["link", { rel: "apple-touch-icon", href: "/favicon.png" }],
+    ["link", { rel: "icon", href: "/nicy-docs/favicon.png", sizes: "any" }],
+    ["link", { rel: "apple-touch-icon", href: "/nicy-docs/favicon.png" }],
   ],
   themeConfig: {
-    logo: "/favicon.png",
+    logo: "/nicy-docs/favicon.png",
     nav: [
       { text: "Home", link: "/" },
       { text: "Install", link: "/install" },
