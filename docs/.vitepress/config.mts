@@ -17,7 +17,7 @@ export default defineConfig({
     ["link", { rel: "apple-touch-icon", href: "/nicy-docs/favicon.png" }],
   ],
   themeConfig: {
-    logo: "/nicy-docs/favicon.png",
+    logo: "/favicon.png",
     nav: [
       { text: "Home", link: "/" },
       { text: "Install", link: "/install" },
