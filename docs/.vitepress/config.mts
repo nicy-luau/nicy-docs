@@ -17,7 +17,7 @@ export default defineConfig({
     ["link", { rel: "apple-touch-icon", href: "/favicon.png" }],
   ],
   themeConfig: {
-    logo: "/favicon.svg",
+    logo: "/favicon.png",
     nav: [
       { text: "Home", link: "/" },
       { text: "Install", link: "/install" },
