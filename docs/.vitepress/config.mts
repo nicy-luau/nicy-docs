@@ -12,9 +12,12 @@ export default defineConfig({
   base: "/nicy-docs/",
   cleanUrls: true,
   lastUpdated: true,
-  head: [["link", { rel: "icon", href: "/logo.svg", type: "image/svg+xml" }]],
+  head: [
+    ["link", { rel: "icon", href: "/favicon.png", sizes: "any" }],
+    ["link", { rel: "apple-touch-icon", href: "/favicon.png" }],
+  ],
   themeConfig: {
-    logo: "/logo.svg",
+    logo: "/favicon.svg",
     nav: [
       { text: "Home", link: "/" },
       { text: "Install", link: "/install" },
